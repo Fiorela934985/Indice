@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Índice de Drive — Laboratorio de Aplicaciones I&amp;D</title>
+<title>Índice Gestión Documentario I+D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -22,17 +22,22 @@
     min-height:100vh; -webkit-font-smoothing:antialiased;
   }
   @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
-  .wrap{max-width:1240px;margin:0 auto;padding:36px 28px 70px;}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 28px 70px;}
 
-  header{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; border-bottom:2px solid var(--line); padding-bottom:20px; margin-bottom:26px; flex-wrap:wrap; }
+  header{
+    display:flex; justify-content:space-between; align-items:center; gap:20px;
+    padding:18px 28px; margin:0 -28px 22px; flex-wrap:wrap;
+    position:sticky; top:0; z-index:20; background:rgba(244,245,247,0.92); backdrop-filter:blur(6px);
+    border-bottom:2px solid var(--line);
+  }
   .brand{display:flex; align-items:center; gap:14px;}
   .mark{ width:42px;height:42px;flex:none; background:var(--navy); border-radius:6px; position:relative; }
   .mark::before,.mark::after{ content:""; position:absolute; background:#fff; }
   .mark::before{ left:9px; top:9px; width:24px; height:3.5px; border-radius:2px; }
   .mark::after{ left:9px; top:18px; width:16px; height:3.5px; border-radius:2px; }
   .mark span{ position:absolute; left:9px; top:27px; width:20px; height:3.5px; border-radius:2px; background:#fff; }
-  h1{ font-family:'Space Grotesk', sans-serif; font-size:20px; font-weight:700; margin:0; line-height:1.15; color:var(--ink); }
-  .brand p{ margin:2px 0 0; font-size:11.5px; color:var(--ink-soft); letter-spacing:0.08em; text-transform:uppercase; }
+  h1{ font-family:'Space Grotesk', sans-serif; font-size:19px; font-weight:700; margin:0; line-height:1.15; color:var(--ink); }
+  .brand p{ margin:2px 0 0; font-size:11px; color:var(--ink-soft); letter-spacing:0.07em; text-transform:uppercase; }
   .status{ display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); background:var(--surface); border:1px solid var(--line); padding:7px 12px; border-radius:20px; }
   .dot{ width:7px;height:7px;border-radius:50%; background:var(--ink-soft); flex:none; transition:background .2s ease; }
   .dot.on{ background:var(--good); }
@@ -40,19 +45,26 @@
   .dot.loading{ background:var(--steel); animation:pulse 1s infinite; }
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
 
-  h2.page-title{ font-family:'Space Grotesk', sans-serif; font-size:26px; font-weight:600; margin:0 0 6px; letter-spacing:-0.01em; color:var(--ink); }
-  .page-sub{ color:var(--ink-soft); font-size:13.5px; margin:0 0 14px; max-width:75ch; line-height:1.5; }
-
-  .layout{ display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:start; }
-  @media (max-width:900px){ .layout{ grid-template-columns:1fr; } }
-
-  .legend{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 18px; }
-  .legend span{ display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-soft); background:var(--surface); border:1px solid var(--line); padding:6px 12px; border-radius:20px; }
-  .legend b{ color:var(--ink); font-weight:600; }
-  .legend .ldot{ width:7px; height:7px; border-radius:50%; flex:none; }
-  .legend .ldot.ACTUALIZADO{ background:var(--good); }
-  .legend .ldot.DESACTUALIZADO{ background:var(--warn); }
-  .legend .ldot.ANTIGUO{ background:var(--old); }
+  /* BARRA HORIZONTAL DE ESTADISTICAS */
+  .stats-bar{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+  .stat-pill{
+    flex:1 1 150px; background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:13px 16px; display:flex; flex-direction:column; gap:4px; min-width:130px;
+  }
+  .stat-pill.dark{ background:var(--navy); border-color:var(--navy); }
+  .stat-pill .slabel{ display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em; font-weight:600; }
+  .stat-pill.dark .slabel{ color:rgba(255,255,255,0.55); }
+  .stat-pill .sdot{ width:7px; height:7px; border-radius:50%; flex:none; }
+  .stat-pill .sdot.ACTUALIZADO{ background:var(--good); }
+  .stat-pill .sdot.DESACTUALIZADO{ background:var(--warn); }
+  .stat-pill .sdot.ANTIGUO{ background:var(--old); }
+  .stat-pill .sval{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:var(--ink); }
+  .stat-pill.dark .sval{ color:#fff; }
+  .stat-pill .sbar{ height:4px; background:var(--surface-alt); border-radius:4px; overflow:hidden; margin-top:2px; }
+  .stat-pill .sbar-fill{ height:100%; border-radius:4px; transition:width .3s ease; }
+  .stat-pill .sbar-fill.ACTUALIZADO{ background:var(--good); }
+  .stat-pill .sbar-fill.DESACTUALIZADO{ background:var(--warn); }
+  .stat-pill .sbar-fill.ANTIGUO{ background:var(--old); }
 
   .toolbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
   .search{ flex:1 1 240px; position:relative; }
@@ -80,20 +92,26 @@
 
   .tree, .flat{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:4px; }
 
-  details.folder{ border-bottom:1px solid var(--line); }
+  details.folder{ border-bottom:1px solid var(--line); border-left:3px solid var(--steel); background:var(--surface); border-radius:4px; margin:2px 0; }
   details.folder:last-child{ border-bottom:none; }
+  details.folder.folder-lvl-2{ border-left-color:var(--steel-light); background:var(--surface-alt); }
+  details.folder.folder-lvl-3{ border-left-color:#6B7CA8; background:#F1F3F8; }
+  details.folder.folder-lvl-4{ border-left-color:#8891A8; background:#ECEFF5; }
   details.folder > summary{
-    list-style:none; cursor:pointer; display:flex; align-items:center; gap:12px; padding:14px 16px;
-    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14.5px; color:var(--ink);
+    list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 16px;
+    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px; color:var(--ink);
     border-radius:6px; transition:background .12s ease;
   }
-  details.folder > summary:hover{ background:var(--surface-alt); }
+  details.folder > summary:hover{ background:rgba(27,58,138,0.05); }
   details.folder > summary::-webkit-details-marker{ display:none; }
   details.folder > summary::before{ content:"▸"; color:var(--ink-soft); font-size:11px; transition:transform .15s ease; flex:none; width:10px; }
   details.folder[open] > summary::before{ transform:rotate(90deg); }
   details.folder > summary .fname{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; }
-  details.folder > summary .fcount{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); font-weight:400; }
-  .folder-children{ padding-left:14px; border-left:1px solid var(--line); margin-left:24px; }
+  details.folder > summary .fcount{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); font-weight:400; }
+  .open-tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; font-weight:600; padding:3px 9px; border-radius:20px; border:1px solid var(--line); color:var(--ink-soft); background:var(--surface); white-space:nowrap; }
+  .open-tag.recien{ border-color:var(--steel-light); color:var(--steel); background:#EEF2FC; }
+  .open-tag.abierto{ border-color:var(--line); color:var(--ink-soft); }
+  .folder-children{ padding-left:12px; margin-left:20px; }
 
   .item{
     display:flex; gap:16px; align-items:flex-start; padding:14px 16px; border-radius:6px;
@@ -102,10 +120,12 @@
   .item:last-child{ border-bottom:none; }
   .item:hover{ background:var(--surface-alt); }
   .thumb-wrap{
-    width:54px; height:54px; border-radius:6px; background:var(--surface-alt); border:1px solid var(--line);
+    width:56px; height:56px; border-radius:6px; background:var(--surface-alt); border:1px solid var(--line);
     flex:none; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease; z-index:1;
   }
-  .thumb-icon{ font-size:20px; line-height:1; }
+  .thumb-wrap:hover{ transform:scale(2.6); z-index:30; box-shadow:0 10px 30px rgba(15,20,32,0.28); border-color:var(--steel); }
+  .thumb-icon{ font-size:21px; line-height:1; }
   .thumb-label{ font-family:'IBM Plex Mono', monospace; font-size:7px; color:var(--ink-soft); margin-top:2px; text-align:center; line-height:1.1; }
   .thumb-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .2s ease; }
   .thumb-img.loaded{ opacity:1; }
@@ -113,8 +133,8 @@
   .top-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
   .cell-name h4{ font-family:'Space Grotesk', sans-serif; font-size:14px; font-weight:600; margin:0; color:var(--ink); line-height:1.35; }
   .breadcrumb{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--steel-light); margin:4px 0 0; word-break:break-word; }
-  .meta-line{ display:flex; flex-wrap:wrap; gap:5px 16px; font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); margin-top:8px; }
-  .meta-line b{ color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-weight:600; }
+  .meta-stack{ display:flex; flex-direction:column; gap:3px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-top:9px; }
+  .meta-stack b{ color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-weight:600; }
   .badge{ font-family:'IBM Plex Sans', sans-serif; font-size:10.5px; font-weight:600; padding:4px 11px; border-radius:20px; color:#fff; white-space:nowrap; flex:none; }
   .badge.ACTUALIZADO{ background:var(--good); }
   .badge.DESACTUALIZADO{ background:var(--warn); }
@@ -131,30 +151,6 @@
 
   footer{ margin-top:22px; display:flex; justify-content:space-between; font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; flex-wrap:wrap; gap:8px; }
 
-  /* SIDEBAR */
-  .sidebar{ display:flex; flex-direction:column; gap:16px; position:sticky; top:24px; }
-  .stat-card{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:20px; }
-  .stat-card h3{ font-family:'Space Grotesk', sans-serif; font-size:11.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 16px; }
-  .stat-row{ display:flex; align-items:center; gap:9px; font-size:13px; color:var(--ink); margin-bottom:6px; }
-  .stat-row .sdot{ width:8px; height:8px; border-radius:50%; flex:none; }
-  .stat-row .sdot.ACTUALIZADO{ background:var(--good); }
-  .stat-row .sdot.DESACTUALIZADO{ background:var(--warn); }
-  .stat-row .sdot.ANTIGUO{ background:var(--old); }
-  .stat-row .slabel{ flex:1; }
-  .stat-row .scount{ font-family:'IBM Plex Mono', monospace; font-weight:600; }
-  .stat-bar{ height:5px; background:var(--surface-alt); border-radius:4px; overflow:hidden; margin:0 0 14px; }
-  .stat-bar:last-of-type{ margin-bottom:0; }
-  .stat-bar-fill{ height:100%; border-radius:4px; transition:width .3s ease; }
-  .stat-bar-fill.ACTUALIZADO{ background:var(--good); }
-  .stat-bar-fill.DESACTUALIZADO{ background:var(--warn); }
-  .stat-bar-fill.ANTIGUO{ background:var(--old); }
-
-  .stat-card.dark{ background:var(--navy); border-color:var(--navy); }
-  .stat-card.dark h3{ color:rgba(255,255,255,0.55); }
-  .stat-line{ display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.1); font-size:13px; color:rgba(255,255,255,0.85); }
-  .stat-line:last-child{ border-bottom:none; }
-  .stat-line b{ font-family:'Space Grotesk', sans-serif; font-size:16px; color:#fff; font-weight:700; }
-
   .setup{ max-width:680px; margin:60px auto; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:32px; }
   .setup h2{ font-family:'Space Grotesk',sans-serif; margin-top:0; }
   .setup ol{ padding-left:20px; line-height:1.9; font-size:14px; }
@@ -164,9 +160,9 @@
   @media (max-width:640px){
     .item{ padding:12px; gap:12px; }
     .thumb-wrap{ width:44px; height:44px; }
+    .thumb-wrap:hover{ transform:scale(2.2); }
     .thumb-icon{ font-size:17px; }
     .top-row{ flex-direction:column; gap:6px; }
-    h2.page-title{ font-size:21px; }
   }
 </style>
 </head>
@@ -192,79 +188,77 @@
     <div class="brand">
       <div class="mark"><span></span></div>
       <div>
-        <h1>Laboratorio de Aplicaciones I&amp;D</h1>
-        <p>Índice de Drive</p>
+        <h1>Índice Gestión Documentario I+D</h1>
+        <p>Laboratorio de Aplicaciones I&amp;D</p>
       </div>
     </div>
     <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Cargando…</span></div>
   </header>
 
-  <h2 class="page-title">Índice de carpetas y documentos</h2>
-  <p class="page-sub">Vista completa de tu Drive, leída en vivo a través de tu propio backend — se actualiza sola cada pocos minutos y cada vez que vuelves a esta pestaña, sin que tengas que hacer nada. Toca cualquier tarjeta para abrir el archivo.</p>
-
-  <div class="layout">
-    <main>
-      <div class="legend">
-        <span><span class="ldot ACTUALIZADO"></span><b>Actualizado</b>&nbsp;— editado hace &lt;1 mes</span>
-        <span><span class="ldot DESACTUALIZADO"></span><b>Desactualizado</b>&nbsp;— hace &gt;1 mes</span>
-        <span><span class="ldot ANTIGUO"></span><b>Antiguo</b>&nbsp;— hace &gt;1 año</span>
-      </div>
-
-      <div class="toolbar">
-        <div class="search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input id="searchInput" type="text" placeholder="Buscar por nombre o ruta…" autocomplete="off">
-        </div>
-        <div class="chip-group" id="chipGroup">
-          <button class="chip active" data-v="todos">Todos</button>
-          <button class="chip" data-v="ACTUALIZADO">Actualizado</button>
-          <button class="chip" data-v="DESACTUALIZADO">Desactualizado</button>
-          <button class="chip" data-v="ANTIGUO">Antiguo</button>
-        </div>
-        <button class="btn btn-ghost" id="refreshBtn">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          Actualizar
-        </button>
-      </div>
-
-      <div class="count-row">
-        <span class="count-pill" id="countPill">— elementos</span>
-        <span class="count-pill" id="lastUpdate"></span>
-      </div>
-
-      <div id="container">
-        <div class="skeleton">
-          <div class="sk-line" style="width:35%"></div>
-          <div class="sk-line" style="width:60%"></div>
-          <div class="sk-line" style="width:45%"></div>
-        </div>
-      </div>
-
-      <footer>
-        <span>Datos leídos en vivo a través del backend · se auto-actualiza cada 5 min</span>
-        <span id="footNote"></span>
-      </footer>
-    </main>
-
-    <aside class="sidebar">
-      <div class="stat-card">
-        <h3>Resumen de estado</h3>
-        <div class="stat-row"><span class="sdot ACTUALIZADO"></span><span class="slabel">Actualizado</span><span class="scount" id="cntACTUALIZADO">0</span></div>
-        <div class="stat-bar"><div class="stat-bar-fill ACTUALIZADO" id="barACTUALIZADO" style="width:0%"></div></div>
-        <div class="stat-row"><span class="sdot DESACTUALIZADO"></span><span class="slabel">Desactualizado</span><span class="scount" id="cntDESACTUALIZADO">0</span></div>
-        <div class="stat-bar"><div class="stat-bar-fill DESACTUALIZADO" id="barDESACTUALIZADO" style="width:0%"></div></div>
-        <div class="stat-row"><span class="sdot ANTIGUO"></span><span class="slabel">Antiguo</span><span class="scount" id="cntANTIGUO">0</span></div>
-        <div class="stat-bar"><div class="stat-bar-fill ANTIGUO" id="barANTIGUO" style="width:0%"></div></div>
-      </div>
-
-      <div class="stat-card dark">
-        <h3>Vista general</h3>
-        <div class="stat-line"><span>Carpetas</span><b id="cntCarpetas">0</b></div>
-        <div class="stat-line"><span>Archivos totales</span><b id="cntArchivosTotal">0</b></div>
-        <div class="stat-line"><span>Próxima sync</span><b id="cntProximaSync">—</b></div>
-      </div>
-    </aside>
+  <div class="stats-bar">
+    <div class="stat-pill">
+      <span class="slabel"><span class="sdot ACTUALIZADO"></span>Actualizado</span>
+      <span class="sval" id="cntACTUALIZADO">0</span>
+      <div class="sbar"><div class="sbar-fill ACTUALIZADO" id="barACTUALIZADO" style="width:0%"></div></div>
+    </div>
+    <div class="stat-pill">
+      <span class="slabel"><span class="sdot DESACTUALIZADO"></span>Desactualizado</span>
+      <span class="sval" id="cntDESACTUALIZADO">0</span>
+      <div class="sbar"><div class="sbar-fill DESACTUALIZADO" id="barDESACTUALIZADO" style="width:0%"></div></div>
+    </div>
+    <div class="stat-pill">
+      <span class="slabel"><span class="sdot ANTIGUO"></span>Antiguo</span>
+      <span class="sval" id="cntANTIGUO">0</span>
+      <div class="sbar"><div class="sbar-fill ANTIGUO" id="barANTIGUO" style="width:0%"></div></div>
+    </div>
+    <div class="stat-pill dark">
+      <span class="slabel">Carpetas</span>
+      <span class="sval" id="cntCarpetas">0</span>
+    </div>
+    <div class="stat-pill dark">
+      <span class="slabel">Archivos totales</span>
+      <span class="sval" id="cntArchivosTotal">0</span>
+    </div>
+    <div class="stat-pill dark">
+      <span class="slabel">Próxima sync</span>
+      <span class="sval" id="cntProximaSync" style="font-size:16px;">—</span>
+    </div>
   </div>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="Buscar por nombre o ruta…" autocomplete="off">
+    </div>
+    <div class="chip-group" id="chipGroup">
+      <button class="chip active" data-v="todos">Todos</button>
+      <button class="chip" data-v="ACTUALIZADO">Actualizado</button>
+      <button class="chip" data-v="DESACTUALIZADO">Desactualizado</button>
+      <button class="chip" data-v="ANTIGUO">Antiguo</button>
+    </div>
+    <button class="btn btn-ghost" id="refreshBtn">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Actualizar
+    </button>
+  </div>
+
+  <div class="count-row">
+    <span class="count-pill" id="countPill">— elementos</span>
+    <span class="count-pill" id="lastUpdate"></span>
+  </div>
+
+  <div id="container">
+    <div class="skeleton">
+      <div class="sk-line" style="width:35%"></div>
+      <div class="sk-line" style="width:60%"></div>
+      <div class="sk-line" style="width:45%"></div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Datos leídos en vivo a través del backend · se auto-actualiza cada 5 min</span>
+    <span id="footNote"></span>
+  </footer>
 
 </div>
 
@@ -302,6 +296,22 @@ function initApp(){
   let cargando = false;
   let ultimaCarga = null;
 
+  const OPEN_KEY = 'idx_folder_opens_v1';
+  function leerAperturas(){ try{ return JSON.parse(localStorage.getItem(OPEN_KEY) || '{}'); }catch(e){ return {}; } }
+  function guardarApertura(ruta){
+    const datos = leerAperturas();
+    datos[ruta] = Date.now();
+    try{ localStorage.setItem(OPEN_KEY, JSON.stringify(datos)); }catch(e){}
+  }
+  function estadoAperturaCarpeta(ruta){
+    const datos = leerAperturas();
+    const t = datos[ruta];
+    if(!t) return { texto:'No abierto', clase:'' };
+    const minutos = (Date.now() - t) / 60000;
+    if(minutos < 30) return { texto:'Recién abierto', clase:'recien' };
+    return { texto:'Abierto', clase:'abierto' };
+  }
+
   function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
 
   function estadoDeFecha(fechaTexto){
@@ -322,6 +332,11 @@ function initApp(){
     let i = 0;
     while(bytes >= 1024 && i < unidades.length-1){ bytes /= 1024; i++; }
     return bytes.toFixed(1) + ' ' + unidades[i];
+  }
+
+  function formatoFechaHora(fechaTexto){
+    if(!fechaTexto) return '—';
+    return new Date(fechaTexto).toLocaleString('es-PE', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
   }
 
   function iconoTipo(mimeType){
@@ -364,6 +379,7 @@ function initApp(){
       Link: f.webViewLink || '',
       Creador: (f.owners && f.owners[0]) ? f.owners[0].displayName : '',
       UltimaPersona: f.lastModifyingUser ? f.lastModifyingUser.displayName : '',
+      FechaRegistro: f.createdTime || '',
       FechaActualizacion: f.modifiedTime || '',
       Peso: f.size ? formatoPeso(f.size) : '',
       Miniatura: f.thumbnailLink || '',
@@ -429,16 +445,16 @@ function initApp(){
   function ordenarComoArbol(bloques){
     const raiz = bloques.find(b => b[0].Profundidad === 0);
     const resultado = [];
-    function visitar(bloque){
+    function visitar(bloque, esRaiz){
       const [carpeta, ...archivos] = bloque;
-      resultado.push(carpeta);
+      if(!esRaiz) resultado.push(carpeta); // la carpeta general no se muestra, solo su contenido
       archivos.forEach(a => resultado.push(a));
       const hijos = bloques
         .filter(b => b[0].Profundidad === carpeta.Profundidad + 1 && b[0].Ruta.startsWith(carpeta.Ruta + ' / ') && !b[0].Ruta.slice(carpeta.Ruta.length + 3).includes(' / '))
         .sort((a,b)=> a[0].Nombre.localeCompare(b[0].Nombre));
-      hijos.forEach(visitar);
+      hijos.forEach(h => visitar(h, false));
     }
-    if(raiz) visitar(raiz);
+    if(raiz) visitar(raiz, true);
     return resultado;
   }
 
@@ -454,7 +470,6 @@ function initApp(){
         <span class="thumb-label">${escapeHtml(r.nombreTipo)}</span>
         ${r.Miniatura ? `<img class="thumb-img" src="${escapeHtml(r.Miniatura)}" onload="this.classList.add('loaded')" onerror="this.remove()" alt="">` : ''}
       </div>`;
-    const fecha = r.FechaActualizacion ? new Date(r.FechaActualizacion).toLocaleDateString('es-PE') : '—';
     return `
       <a class="item" href="${escapeHtml(r.Link || '#')}" target="_blank" rel="noopener noreferrer">
         ${thumb}
@@ -464,10 +479,11 @@ function initApp(){
             <span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span>
           </div>
           <p class="breadcrumb">${escapeHtml(r.Ruta)}</p>
-          <div class="meta-line">
+          <div class="meta-stack">
             ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
-            ${r.UltimaPersona ? `<span><b>Últ. edición:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
-            <span><b>Fecha:</b> ${fecha}</span>
+            ${r.UltimaPersona ? `<span><b>Última edición por:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
+            <span><b>Creado:</b> ${formatoFechaHora(r.FechaRegistro)}</span>
+            <span><b>Modificado:</b> ${formatoFechaHora(r.FechaActualizacion)}</span>
             ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
           </div>
         </div>
@@ -496,10 +512,20 @@ function initApp(){
 
       if(r.esCarpeta){
         const n = contarDescendientes(list, i);
+        const nivel = Math.min(depth, 4);
+        const apertura = estadoAperturaCarpeta(r.Ruta);
         const details = document.createElement('details');
-        details.className = 'folder';
-        details.open = depth === 0;
-        details.innerHTML = `<summary><span class="fname">${r.icono} ${escapeHtml(r.Nombre)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
+        details.className = 'folder folder-lvl-' + nivel;
+        details.open = depth === 1;
+        details.innerHTML = `<summary><span class="fname">${r.icono} ${escapeHtml(r.Nombre)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><span class="open-tag ${apertura.clase}" data-ruta="${escapeHtml(r.Ruta)}">${apertura.texto}</span><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
+        details.addEventListener('toggle', () => {
+          if(details.open){
+            guardarApertura(r.Ruta);
+            const tag = details.querySelector('.open-tag');
+            tag.textContent = 'Recién abierto';
+            tag.className = 'open-tag recien';
+          }
+        });
         parentEl.appendChild(details);
         stack.push({ depth, el: details.querySelector('.folder-children') });
       } else {
@@ -522,7 +548,7 @@ function initApp(){
     return root;
   }
 
-  function actualizarSidebar(){
+  function actualizarStats(){
     const archivos = rows.filter(r => !r.esCarpeta);
     const carpetas = rows.filter(r => r.esCarpeta);
     const total = archivos.length || 1;
@@ -548,7 +574,7 @@ function initApp(){
     const restanteMs = Math.max(0, AUTO_REFRESH_MS - (Date.now() - ultimaCarga));
     const minutos = Math.floor(restanteMs / 60000);
     const segundos = Math.floor((restanteMs % 60000) / 1000);
-    el.textContent = restanteMs <= 0 ? 'ahora' : `en ${minutos}:${String(segundos).padStart(2,'0')}`;
+    el.textContent = restanteMs <= 0 ? 'ahora' : `${minutos}:${String(segundos).padStart(2,'0')}`;
   }
   setInterval(actualizarProximaSync, 1000);
 
@@ -570,7 +596,7 @@ function initApp(){
 
     if(rows.length === 0){
       container.innerHTML = `<div class="empty"><h3>Carpeta vacía</h3><p>No se encontraron archivos en esta carpeta.</p></div>`;
-      actualizarSidebar();
+      actualizarStats();
       return;
     }
 
@@ -578,7 +604,7 @@ function initApp(){
       const filtrados = rows.filter(r => !r.esCarpeta).filter(coincide);
       if(filtrados.length === 0){
         container.innerHTML = `<div class="empty"><h3>Sin resultados</h3><p>Prueba con otro término o quita el filtro de estado.</p></div>`;
-        actualizarSidebar();
+        actualizarStats();
         return;
       }
       container.appendChild(renderFlat(filtrados));
@@ -586,7 +612,7 @@ function initApp(){
       container.appendChild(renderTree(rows));
     }
 
-    actualizarSidebar();
+    actualizarStats();
   }
 
   chipGroup.querySelectorAll('.chip').forEach(chip=>{
