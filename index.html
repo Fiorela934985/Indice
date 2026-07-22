@@ -70,11 +70,13 @@
   .stat-pill .sbar-fill.ANTIGUO{ background:var(--old); }
 
   .sync-pill{
-    flex:0 0 auto; display:flex; align-items:center; gap:9px; background:var(--navy); color:#fff;
-    border-radius:30px; padding:0 20px; font-family:'IBM Plex Mono', monospace; font-size:12.5px; font-weight:600;
+    flex:0 0 auto; display:flex; align-items:center; gap:8px; background:#fff; color:var(--ink);
+    border-radius:30px; padding:8px 14px; font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:600;
+    transition:background .2s ease, color .2s ease;
   }
-  .sync-pill .semoji{ font-size:15px; }
-  .sync-pill b{ font-family:'Space Grotesk', sans-serif; font-size:14px; }
+  .sync-pill.urgente{ background:var(--old); color:#fff; }
+  .sync-pill .semoji{ font-size:13px; }
+  .sync-pill b{ font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:700; }
 
   .toolbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
   .search{ flex:1 1 240px; position:relative; }
@@ -148,9 +150,9 @@
   .badge.DESACTUALIZADO{ background:var(--warn); }
   .badge.ANTIGUO{ background:var(--old); }
   .badge.other{ background:var(--ink-soft); }
-  .open-tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; font-weight:600; padding:3px 9px; border-radius:20px; border:1px solid var(--line); color:var(--ink-soft); background:var(--surface); white-space:nowrap; }
-  .open-tag.recien{ border-color:var(--steel-light); color:var(--header-blue); background:#EEF2FC; }
-  .open-tag.abierto{ border-color:var(--line); color:var(--ink-soft); background:var(--surface-alt); }
+  .open-tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; font-weight:600; padding:3px 9px; border-radius:20px; border:1px dashed var(--line); color:var(--ink-soft); background:var(--surface-alt); white-space:nowrap; }
+  .open-tag.recien{ border:1px solid var(--header-blue); color:#fff; background:var(--header-blue); }
+  .open-tag.abierto{ border:1px solid var(--good); color:var(--good); background:var(--good-soft); }
 
   .empty{ text-align:center; padding:56px 20px; color:var(--ink-soft); }
   .empty h3{ font-family:'Space Grotesk',sans-serif; color:var(--ink); margin:0 0 6px; font-size:16px;}
@@ -210,6 +212,9 @@
   </header>
 
   <div class="stats-bar">
+    <div class="sync-pill" id="syncPill">
+      <span class="semoji">⏱️</span>Próxima sync <b id="cntProximaSync">—</b>
+    </div>
     <div class="stat-pill ACTUALIZADO">
       <span class="slabel"><span class="semoji">🟢</span>Actualizado</span>
       <span class="sval" id="cntACTUALIZADO">0</span>
@@ -232,9 +237,6 @@
     <div class="stat-pill dark">
       <span class="slabel"><span class="semoji">🗂️</span>Archivos totales</span>
       <span class="sval" id="cntArchivosTotal">0</span>
-    </div>
-    <div class="sync-pill">
-      <span class="semoji">⏱️</span>Próxima sync <b id="cntProximaSync">—</b>
     </div>
   </div>
 
@@ -283,7 +285,7 @@
 const API_BASE = 'https://drive-index-api.santospillamangofiorelalizet.workers.dev';
 /* ====================================================== */
 
-const AUTO_REFRESH_MS = 5 * 60 * 1000; // se auto-actualiza cada 5 minutos
+const AUTO_REFRESH_MS = 2 * 60 * 1000; // se auto-actualiza cada 2 minutos
 const isConfigured = API_BASE && !API_BASE.includes('PEGA_AQUI');
 
 if(!isConfigured){
@@ -501,11 +503,11 @@ function initApp(){
             <div class="col">
               ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
               ${r.UltimaPersona ? `<span><b>Última edición por:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
+              ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
             </div>
             <div class="col">
               <span><b>Creado:</b> ${formatoFechaHora(r.FechaRegistro)}</span>
               <span><b>Modificado:</b> ${formatoFechaHora(r.FechaActualizacion)}</span>
-              ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
             </div>
           </div>
         </div>
@@ -586,12 +588,14 @@ function initApp(){
 
   function actualizarProximaSync(){
     const el = document.getElementById('cntProximaSync');
+    const pill = document.getElementById('syncPill');
     if(!el) return;
     if(!ultimaCarga){ el.textContent = '—'; return; }
     const restanteMs = Math.max(0, AUTO_REFRESH_MS - (Date.now() - ultimaCarga));
     const minutos = Math.floor(restanteMs / 60000);
     const segundos = Math.floor((restanteMs % 60000) / 1000);
     el.textContent = restanteMs <= 0 ? 'ahora' : `${minutos}:${String(segundos).padStart(2,'0')}`;
+    if(pill) pill.classList.toggle('urgente', restanteMs <= 30000);
   }
   setInterval(actualizarProximaSync, 1000);
 
