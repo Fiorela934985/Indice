@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Índice de Drive — Laboratorio de Aplicaciones I&amp;D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3F5F9; --surface:#FFFFFF; --surface-alt:#FBFCFE;
+    --ink:#0A0E1A; --ink-soft:#4A5568;
+    --steel:#123AA8; --steel-light:#2C57E8;
+    --line:#DCE1EC; --good:#1E7A45; --warn:#B8790A; --old:#A32020;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--ink); font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px;}
+
+  header{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; border-bottom:3px solid var(--steel); padding-bottom:18px; margin-bottom:6px; flex-wrap:wrap; }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .mark{ width:46px;height:46px;flex:none; background:var(--ink); border-radius:8px; position:relative; box-shadow:3px 3px 0 var(--steel); }
+  .mark::before,.mark::after{ content:""; position:absolute; background:var(--surface); }
+  .mark::before{ left:9px; top:9px; width:28px; height:4px; border-radius:2px; }
+  .mark::after{ left:9px; top:19px; width:18px; height:4px; border-radius:2px; }
+  .mark span{ position:absolute; left:9px; top:29px; width:22px; height:4px; border-radius:2px; background:var(--surface); }
+  h1{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; margin:0; line-height:1.15; }
+  .brand p{ margin:3px 0 0; font-size:12.5px; color:var(--ink-soft); letter-spacing:0.06em; text-transform:uppercase; }
+  .status{ display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); }
+  .dot{ width:8px;height:8px;border-radius:50%; background:var(--ink-soft); flex:none; transition:background .2s ease; }
+  .dot.on{ background:var(--good); box-shadow:0 0 0 4px rgba(30,122,69,0.15); }
+  .dot.off{ background:var(--old); }
+  .dot.loading{ background:var(--steel); animation:pulse 1s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  h2.page-title{ font-family:'Space Grotesk', sans-serif; font-size:32px; font-weight:600; margin:26px 0 4px; letter-spacing:-0.01em; }
+  .page-sub{ color:var(--ink-soft); font-size:14.5px; margin:0 0 8px; max-width:70ch; }
+  .legend{ display:flex; flex-wrap:wrap; gap:16px; font-size:12.5px; color:var(--ink-soft); margin:12px 0 20px; }
+  .legend b{ color:var(--ink); }
+
+  .toolbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+  .search{ flex:1 1 240px; position:relative; }
+  .search input{ width:100%; padding:11px 14px 11px 36px; border:1.5px solid var(--line); background:var(--surface); border-radius:var(--radius); font-family:'IBM Plex Sans', sans-serif; font-size:14px; color:var(--ink); }
+  .search input:focus{ outline:2px solid var(--steel-light); outline-offset:1px; border-color:var(--steel); }
+  .search svg{ position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px;height:15px; color:var(--ink-soft); }
+  .chip-group{ display:flex; gap:6px; flex-wrap:wrap; }
+  .chip{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; padding:7px 12px; border-radius:20px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink-soft); cursor:pointer; white-space:nowrap; transition:all .12s ease; }
+  .chip:hover{ border-color:var(--steel-light); }
+  .chip.active[data-v="todos"]{ background:var(--steel); border-color:var(--steel); color:#fff; }
+  .chip.active[data-v="ACTUALIZADO"]{ background:var(--good); border-color:var(--good); color:#fff; }
+  .chip.active[data-v="DESACTUALIZADO"]{ background:var(--warn); border-color:var(--warn); color:#fff; }
+  .chip.active[data-v="ANTIGUO"]{ background:var(--old); border-color:var(--old); color:#fff; }
+  .btn{ font-family:'IBM Plex Sans', sans-serif; font-weight:600; font-size:13.5px; border:none; border-radius:var(--radius); padding:9px 16px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all .12s ease; }
+  .btn-ghost{ background:transparent; color:var(--steel); border:1.5px solid var(--steel); }
+  .btn-ghost:hover{ background:var(--steel); color:#fff; }
+  .btn-ghost.spinning svg{ animation:spin .8s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .count-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+  .count-pill{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); }
+
+  .tree, .flat{ background:var(--surface); border:1.5px solid var(--line); border-radius:10px; padding:6px; box-shadow:0 1px 2px rgba(10,14,26,0.04); }
+
+  details.folder{ border-bottom:1px dashed var(--line); }
+  details.folder:last-child{ border-bottom:none; }
+  details.folder > summary{
+    list-style:none; cursor:pointer; display:flex; align-items:center; gap:12px; padding:16px;
+    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:16px; color:var(--ink);
+    border-radius:6px; transition:background .12s ease;
+  }
+  details.folder > summary:hover{ background:var(--surface-alt); }
+  details.folder > summary::-webkit-details-marker{ display:none; }
+  details.folder > summary::before{ content:"▸"; color:var(--steel); font-size:13px; transition:transform .15s ease; flex:none; width:12px; }
+  details.folder[open] > summary::before{ transform:rotate(90deg); }
+  details.folder > summary .fname{ flex:1; min-width:0; }
+  details.folder > summary .fcount{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); font-weight:400; }
+  .folder-children{ padding-left:16px; border-left:2px solid var(--line); margin-left:26px; }
+
+  .item{
+    display:flex; gap:18px; align-items:flex-start; padding:16px; border-radius:6px;
+    border-bottom:1px dashed var(--line); text-decoration:none; color:inherit; transition:background .12s ease;
+  }
+  .item:last-child{ border-bottom:none; }
+  .item:hover{ background:var(--surface-alt); }
+  .thumb-wrap{
+    width:88px; height:88px; border-radius:8px; background:var(--bg); border:1.5px solid var(--line);
+    flex:none; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .thumb-icon{ font-size:32px; line-height:1; }
+  .thumb-label{ font-family:'IBM Plex Mono', monospace; font-size:8.5px; color:var(--ink-soft); margin-top:3px; text-align:center; line-height:1.1; }
+  .thumb-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .2s ease; }
+  .thumb-img.loaded{ opacity:1; }
+  .cell-name{ flex:1; min-width:0; }
+  .top-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+  .cell-name h4{ font-family:'Space Grotesk', sans-serif; font-size:15.5px; font-weight:600; margin:0; color:var(--ink); line-height:1.35; }
+  .breadcrumb{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--steel-light); margin:5px 0 0; word-break:break-word; }
+  .meta-line{ display:flex; flex-wrap:wrap; gap:6px 18px; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); margin-top:10px; }
+  .meta-line b{ color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-weight:600; }
+  .badge{ font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:700; padding:5px 13px; border-radius:20px; color:#fff; white-space:nowrap; flex:none; }
+  .badge.ACTUALIZADO{ background:var(--good); }
+  .badge.DESACTUALIZADO{ background:var(--warn); }
+  .badge.ANTIGUO{ background:var(--old); }
+  .badge.other{ background:var(--ink-soft); }
+
+  .empty{ text-align:center; padding:60px 20px; color:var(--ink-soft); }
+  .empty h3{ font-family:'Space Grotesk',sans-serif; color:var(--ink); margin:0 0 6px; font-size:17px;}
+  .empty p{ font-size:13.5px; margin:0; }
+
+  .skeleton{ padding:22px; }
+  .sk-line{ height:14px; background:linear-gradient(90deg,var(--line),var(--surface-alt),var(--line)); background-size:200% 100%; animation:shimmer 1.3s infinite; border-radius:3px; margin-bottom:10px; }
+  @keyframes shimmer{ 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+  .progress{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); text-align:center; padding:10px; }
+
+  footer{ margin-top:28px; display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; flex-wrap:wrap; gap:8px; }
+
+  .setup{ max-width:680px; margin:60px auto; background:var(--surface); border:1.5px solid var(--line); border-radius:10px; padding:32px; }
+  .setup h2{ font-family:'Space Grotesk',sans-serif; margin-top:0; }
+  .setup ol{ padding-left:20px; line-height:1.9; font-size:14.5px; }
+  .setup code{ background:var(--bg); padding:2px 6px; border-radius:3px; font-family:'IBM Plex Mono', monospace; font-size:13px; }
+  .setup .warn{ background:#FFF7E8; border:1px solid var(--warn); border-radius:6px; padding:12px 14px; font-size:13px; margin-top:16px; }
+
+  @media (max-width:640px){
+    .item{ padding:12px; gap:12px; }
+    .thumb-wrap{ width:56px; height:56px; }
+    .thumb-icon{ font-size:24px; }
+    .top-row{ flex-direction:column; gap:6px; }
+    h2.page-title{ font-size:24px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="setupScreen" class="wrap" style="display:none;">
+  <div class="setup">
+    <h2>⚙️ Falta conectar tu backend</h2>
+    <p>Esta página lee el índice de Drive a través de tu Worker de Cloudflare (que guarda la API key de forma segura).</p>
+    <ol>
+      <li>Despliega el Worker en <code>backend/</code> siguiendo su README (<code>npx wrangler deploy</code>).</li>
+      <li>Copia la URL que te da Wrangler, ej: <code>https://drive-index-api.tu-cuenta.workers.dev</code></li>
+      <li>Pégala abajo donde dice <code>PEGA_AQUI_TU_WORKER_URL</code> en la constante <code>API_BASE</code>.</li>
+      <li>Guarda y recarga.</li>
+    </ol>
+    <div class="warn">✅ La API key de Google ya no vive en este HTML — queda como secret dentro del Worker.</div>
+  </div>
+</div>
+
+<div id="app" class="wrap" style="display:none;">
+
+  <header>
+    <div class="brand">
+      <div class="mark"><span></span></div>
+      <div>
+        <h1>Laboratorio de Aplicaciones I&amp;D</h1>
+        <p>Índice de Drive</p>
+      </div>
+    </div>
+    <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Cargando…</span></div>
+  </header>
+
+  <h2 class="page-title">Índice de carpetas y documentos</h2>
+  <p class="page-sub">Vista completa de tu Drive, leída en vivo a través de tu propio backend — se actualiza sola cada pocos minutos y cada vez que vuelves a esta pestaña, sin que tengas que hacer nada. Toca cualquier tarjeta para abrir el archivo.</p>
+  <div class="legend">
+    <span>🟢 <b>Actualizado</b>: editado hace &lt;1 mes</span>
+    <span>🟠 <b>Desactualizado</b>: hace &gt;1 mes</span>
+    <span>🔴 <b>Antiguo</b>: hace &gt;1 año</span>
+  </div>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="Buscar por nombre o ruta…" autocomplete="off">
+    </div>
+    <div class="chip-group" id="chipGroup">
+      <button class="chip active" data-v="todos">📁 Todos</button>
+      <button class="chip" data-v="ACTUALIZADO">🟢 Actualizado</button>
+      <button class="chip" data-v="DESACTUALIZADO">🟠 Desactualizado</button>
+      <button class="chip" data-v="ANTIGUO">🔴 Antiguo</button>
+    </div>
+    <button class="btn btn-ghost" id="refreshBtn">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Actualizar
+    </button>
+  </div>
+
+  <div class="count-row">
+    <span class="count-pill" id="countPill">— elementos</span>
+    <span class="count-pill" id="lastUpdate"></span>
+  </div>
+
+  <div id="container">
+    <div class="skeleton">
+      <div class="sk-line" style="width:35%"></div>
+      <div class="sk-line" style="width:60%"></div>
+      <div class="sk-line" style="width:45%"></div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Datos leídos en vivo a través del backend · se auto-actualiza cada 5 min</span>
+    <span id="footNote"></span>
+  </footer>
+
+</div>
+
+<script>
+/* ======================================================
+   CONFIGURACIÓN — pega la URL de tu Worker de Cloudflare.
+   Ya no hay ninguna API key en este archivo.
+   ====================================================== */
+const API_BASE = 'PEGA_AQUI_TU_WORKER_URL'; // ej: https://drive-index-api.tu-cuenta.workers.dev
+/* ====================================================== */
+
+const AUTO_REFRESH_MS = 5 * 60 * 1000; // se auto-actualiza cada 5 minutos
+const isConfigured = API_BASE && !API_BASE.includes('PEGA_AQUI');
+
+if(!isConfigured){
+  document.getElementById('setupScreen').style.display = 'block';
+} else {
+  document.getElementById('app').style.display = 'block';
+  initApp();
+}
+
+function initApp(){
+  const container = document.getElementById('container');
+  const searchInput = document.getElementById('searchInput');
+  const chipGroup = document.getElementById('chipGroup');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const countPill = document.getElementById('countPill');
+  const lastUpdate = document.getElementById('lastUpdate');
+  const footNote = document.getElementById('footNote');
+  const refreshBtn = document.getElementById('refreshBtn');
+
+  let rows = [];
+  let estadoFiltro = 'todos';
+  let cargando = false;
+  let ultimaCarga = null;
+
+  function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+
+  function estadoDeFecha(fechaTexto){
+    if(!fechaTexto) return '—';
+    const fecha = new Date(fechaTexto);
+    const hoy = new Date();
+    const unMesAtras = new Date(hoy); unMesAtras.setMonth(unMesAtras.getMonth()-1);
+    const unAnioAtras = new Date(hoy); unAnioAtras.setFullYear(unAnioAtras.getFullYear()-1);
+    if(fecha >= unMesAtras) return 'ACTUALIZADO';
+    if(fecha >= unAnioAtras) return 'DESACTUALIZADO';
+    return 'ANTIGUO';
+  }
+
+  function formatoPeso(bytesTexto){
+    let bytes = parseInt(bytesTexto, 10);
+    if(isNaN(bytes)) return '';
+    const unidades = ['B','KB','MB','GB','TB'];
+    let i = 0;
+    while(bytes >= 1024 && i < unidades.length-1){ bytes /= 1024; i++; }
+    return bytes.toFixed(1) + ' ' + unidades[i];
+  }
+
+  function iconoTipo(mimeType){
+    if(mimeType === 'application/vnd.google-apps.document') return ['📄','Documento'];
+    if(mimeType === 'application/vnd.google-apps.spreadsheet') return ['📊','Hoja de cálculo'];
+    if(mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return ['📊','Excel'];
+    if(mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return ['📄','Word'];
+    if(mimeType === 'application/vnd.google-apps.presentation') return ['📑','Presentación'];
+    if(mimeType === 'application/pdf') return ['📕','PDF'];
+    if(mimeType && mimeType.startsWith('image/')) return ['🖼️','Imagen'];
+    if(mimeType === 'application/vnd.google-apps.folder') return ['📁','Carpeta'];
+    return ['📎','Archivo'];
+  }
+
+  async function listarHijos(folderId){
+    const resp = await fetch(`${API_BASE}/api/children?id=${encodeURIComponent(folderId)}`);
+    if(!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    return data.files || [];
+  }
+
+  async function obtenerMeta(fileId){
+    const resp = await fetch(`${API_BASE}/api/meta?id=${encodeURIComponent(fileId)}`);
+    if(!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
+  }
+
+  async function obtenerRootFolderId(){
+    const resp = await fetch(`${API_BASE}/api/root`);
+    if(!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    return data.rootFolderId;
+  }
+
+  function construirItem(f, ruta, profundidad, esCarpeta){
+    const [icono, nombreTipo] = iconoTipo(f.mimeType);
+    return {
+      esCarpeta, icono, nombreTipo,
+      Nombre: f.name, Ruta: ruta, Profundidad: profundidad,
+      Link: f.webViewLink || '',
+      Creador: (f.owners && f.owners[0]) ? f.owners[0].displayName : '',
+      UltimaPersona: f.lastModifyingUser ? f.lastModifyingUser.displayName : '',
+      FechaActualizacion: f.modifiedTime || '',
+      Peso: f.size ? formatoPeso(f.size) : '',
+      Miniatura: f.thumbnailLink || '',
+      Estado: estadoDeFecha(f.modifiedTime)
+    };
+  }
+
+  // Recorre carpetas EN PARALELO (mucho más rápido que una por una)
+  async function recorrerCarpeta(folderId, rutaPadre, profundidad, itemsPorCarpeta){
+    const meta = await obtenerMeta(folderId);
+    const ruta = rutaPadre ? (rutaPadre + ' / ' + meta.name) : meta.name;
+    const propios = [construirItem(meta, ruta, profundidad, true)];
+
+    const hijos = await listarHijos(folderId);
+    const subcarpetas = [];
+    hijos.forEach(f=>{
+      if(f.mimeType === 'application/vnd.google-apps.folder'){
+        subcarpetas.push(f.id);
+      } else {
+        propios.push(construirItem(f, ruta + ' / ' + f.name, profundidad + 1, false));
+      }
+    });
+
+    itemsPorCarpeta.push(propios);
+
+    await Promise.all(subcarpetas.map(id => recorrerCarpeta(id, ruta, profundidad + 1, itemsPorCarpeta)));
+  }
+
+  async function cargarDatos(manual){
+    if(cargando) return;
+    cargando = true;
+    statusDot.className = 'dot loading';
+    statusText.textContent = 'Leyendo tu Drive…';
+    if(manual) refreshBtn.classList.add('spinning');
+    if(rows.length === 0){
+      container.innerHTML = `<div class="skeleton"><div class="sk-line" style="width:35%"></div><div class="sk-line" style="width:60%"></div><div class="sk-line" style="width:45%"></div></div>`;
+    }
+    try{
+      const rootFolderId = await obtenerRootFolderId();
+      const bloques = [];
+      await recorrerCarpeta(rootFolderId, '', 0, bloques);
+      rows = ordenarComoArbol(bloques);
+      ultimaCarga = Date.now();
+      statusDot.className = 'dot on';
+      statusText.textContent = 'Conectado';
+      lastUpdate.textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-PE');
+      render();
+    }catch(e){
+      console.error(e);
+      statusDot.className = 'dot off';
+      statusText.textContent = 'Sin conexión';
+      if(rows.length === 0){
+        container.innerHTML = `<div class="empty"><h3>No se pudo leer tu Drive</h3><p>Revisa que tu backend en Cloudflare esté desplegado y accesible.</p></div>`;
+      }
+    } finally {
+      cargando = false;
+      refreshBtn.classList.remove('spinning');
+    }
+  }
+
+  // Arma el orden jerárquico correcto (carpeta, sus archivos, sus subcarpetas...) a partir
+  // de los bloques recolectados en paralelo, usando Ruta para saber quién es hijo de quién.
+  function ordenarComoArbol(bloques){
+    const raiz = bloques.find(b => b[0].Profundidad === 0);
+    const resultado = [];
+    function visitar(bloque){
+      const [carpeta, ...archivos] = bloque;
+      resultado.push(carpeta);
+      archivos.forEach(a => resultado.push(a));
+      const hijos = bloques
+        .filter(b => b[0].Profundidad === carpeta.Profundidad + 1 && b[0].Ruta.startsWith(carpeta.Ruta + ' / ') && !b[0].Ruta.slice(carpeta.Ruta.length + 3).includes(' / '))
+        .sort((a,b)=> a[0].Nombre.localeCompare(b[0].Nombre));
+      hijos.forEach(visitar);
+    }
+    if(raiz) visitar(raiz);
+    return resultado;
+  }
+
+  function badgeClass(texto){
+    if(texto === 'ACTUALIZADO' || texto === 'DESACTUALIZADO' || texto === 'ANTIGUO') return texto;
+    return 'other';
+  }
+
+  function renderItem(r){
+    const thumb = `
+      <div class="thumb-wrap">
+        <span class="thumb-icon">${r.icono}</span>
+        <span class="thumb-label">${escapeHtml(r.nombreTipo)}</span>
+        ${r.Miniatura ? `<img class="thumb-img" src="${escapeHtml(r.Miniatura)}" onload="this.classList.add('loaded')" onerror="this.remove()" alt="">` : ''}
+      </div>`;
+    const fecha = r.FechaActualizacion ? new Date(r.FechaActualizacion).toLocaleDateString('es-PE') : '—';
+    return `
+      <a class="item" href="${escapeHtml(r.Link || '#')}" target="_blank" rel="noopener noreferrer">
+        ${thumb}
+        <div class="cell-name">
+          <div class="top-row">
+            <h4>${escapeHtml(r.Nombre)}</h4>
+            <span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span>
+          </div>
+          <p class="breadcrumb">${escapeHtml(r.Ruta)}</p>
+          <div class="meta-line">
+            ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
+            ${r.UltimaPersona ? `<span><b>Últ. edición:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
+            <span><b>Fecha:</b> ${fecha}</span>
+            ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
+          </div>
+        </div>
+      </a>`;
+  }
+
+  function contarDescendientes(list, index){
+    let count = 0;
+    const depth = list[index].Profundidad;
+    for(let i = index + 1; i < list.length; i++){
+      if(list[i].Profundidad <= depth) break;
+      if(!list[i].esCarpeta) count++;
+    }
+    return count;
+  }
+
+  function renderTree(list){
+    const root = document.createElement('div');
+    root.className = 'tree';
+    const stack = [{ depth:-1, el: root }];
+
+    list.forEach((r, i) => {
+      const depth = r.Profundidad;
+      while(stack.length > 1 && stack[stack.length-1].depth >= depth) stack.pop();
+      const parentEl = stack[stack.length-1].el;
+
+      if(r.esCarpeta){
+        const n = contarDescendientes(list, i);
+        const details = document.createElement('details');
+        details.className = 'folder';
+        details.open = depth === 0;
+        details.innerHTML = `<summary><span class="fname">${r.icono} ${escapeHtml(r.Nombre)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
+        parentEl.appendChild(details);
+        stack.push({ depth, el: details.querySelector('.folder-children') });
+      } else {
+        const div = document.createElement('div');
+        div.innerHTML = renderItem(r);
+        parentEl.appendChild(div.firstElementChild);
+      }
+    });
+    return root;
+  }
+
+  function renderFlat(list){
+    const root = document.createElement('div');
+    root.className = 'flat';
+    list.forEach(r=>{
+      const div = document.createElement('div');
+      div.innerHTML = renderItem(r);
+      root.appendChild(div.firstElementChild);
+    });
+    return root;
+  }
+
+  function render(){
+    const q = searchInput.value.trim().toLowerCase();
+    const hayFiltro = q.length > 0 || estadoFiltro !== 'todos';
+
+    const coincide = (r) => {
+      const okEstado = estadoFiltro === 'todos' || r.Estado === estadoFiltro;
+      const okTexto = !q || (r.Nombre||'').toLowerCase().includes(q) || (r.Ruta||'').toLowerCase().includes(q);
+      return okEstado && okTexto;
+    };
+
+    const totalArchivos = rows.filter(r => !r.esCarpeta).length;
+    countPill.textContent = totalArchivos + (totalArchivos===1 ? ' archivo indexado' : ' archivos indexados');
+    footNote.textContent = rows.length + ' filas totales';
+
+    container.innerHTML = '';
+
+    if(rows.length === 0){
+      container.innerHTML = `<div class="empty"><h3>Carpeta vacía</h3><p>No se encontraron archivos en esta carpeta.</p></div>`;
+      return;
+    }
+
+    if(hayFiltro){
+      const filtrados = rows.filter(r => !r.esCarpeta).filter(coincide);
+      if(filtrados.length === 0){
+        container.innerHTML = `<div class="empty"><h3>Sin resultados</h3><p>Prueba con otro término o quita el filtro de estado.</p></div>`;
+        return;
+      }
+      container.appendChild(renderFlat(filtrados));
+    } else {
+      container.appendChild(renderTree(rows));
+    }
+  }
+
+  chipGroup.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      chipGroup.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      estadoFiltro = chip.dataset.v;
+      render();
+    });
+  });
+
+  searchInput.addEventListener('input', render);
+  refreshBtn.addEventListener('click', () => cargarDatos(true));
+
+  // AUTOMATIZACIÓN: se auto-actualiza sola cada 5 min, y al volver a la pestaña si ya pasó ese tiempo
+  setInterval(() => cargarDatos(false), AUTO_REFRESH_MS);
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && ultimaCarga && (Date.now() - ultimaCarga > AUTO_REFRESH_MS)){
+      cargarDatos(false);
+    }
+  });
+
+  cargarDatos(false);
+}
+</script>
+</body>
+</html>
