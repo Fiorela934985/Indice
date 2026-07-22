@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Índice Gestión Documentario I+D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#F4F5F7; --surface:#FFFFFF; --surface-alt:#FAFBFC;
     --ink:#0F1420; --ink-soft:#5B6472;
-    --steel:#1B3A8A; --steel-light:#2C57E8;
+    --header-blue:#1450D6; --steel:#1B3A8A; --steel-light:#2C57E8;
     --line:#E1E4EA; --good:#1E7A45; --warn:#B8790A; --old:#A32020;
+    --good-soft:#E7F5EC; --warn-soft:#FCF2E3; --old-soft:#FBEAEA;
     --navy:#161B33;
     --radius:8px;
   }
@@ -25,46 +26,55 @@
   .wrap{max-width:1280px;margin:0 auto;padding:0 28px 70px;}
 
   header{
-    display:flex; justify-content:space-between; align-items:center; gap:20px;
-    padding:18px 28px; margin:0 -28px 22px; flex-wrap:wrap;
-    position:sticky; top:0; z-index:20; background:rgba(244,245,247,0.92); backdrop-filter:blur(6px);
-    border-bottom:2px solid var(--line);
+    display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:16px;
+    padding:20px 28px; margin:0 -28px 22px; flex-wrap:wrap;
+    position:sticky; top:0; z-index:20; background:var(--header-blue);
+    box-shadow:0 2px 10px rgba(20,80,214,0.25);
   }
-  .brand{display:flex; align-items:center; gap:14px;}
-  .mark{ width:42px;height:42px;flex:none; background:var(--navy); border-radius:6px; position:relative; }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .mark{ width:40px;height:40px;flex:none; background:rgba(255,255,255,0.16); border-radius:8px; position:relative; }
   .mark::before,.mark::after{ content:""; position:absolute; background:#fff; }
-  .mark::before{ left:9px; top:9px; width:24px; height:3.5px; border-radius:2px; }
-  .mark::after{ left:9px; top:18px; width:16px; height:3.5px; border-radius:2px; }
-  .mark span{ position:absolute; left:9px; top:27px; width:20px; height:3.5px; border-radius:2px; background:#fff; }
-  h1{ font-family:'Space Grotesk', sans-serif; font-size:19px; font-weight:700; margin:0; line-height:1.15; color:var(--ink); }
-  .brand p{ margin:2px 0 0; font-size:11px; color:var(--ink-soft); letter-spacing:0.07em; text-transform:uppercase; }
-  .status{ display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); background:var(--surface); border:1px solid var(--line); padding:7px 12px; border-radius:20px; }
+  .mark::before{ left:8px; top:9px; width:24px; height:3.5px; border-radius:2px; }
+  .mark::after{ left:8px; top:18px; width:16px; height:3.5px; border-radius:2px; }
+  .mark span{ position:absolute; left:8px; top:27px; width:20px; height:3.5px; border-radius:2px; background:#fff; }
+  .title-block{ text-align:center; }
+  h1{ font-family:'Space Grotesk', sans-serif; font-size:20px; font-weight:800; margin:0; line-height:1.2; color:#fff; letter-spacing:0.01em; }
+  .title-block p{ margin:3px 0 0; font-size:11px; color:rgba(255,255,255,0.75); letter-spacing:0.08em; text-transform:uppercase; font-weight:500; }
+  .status{ display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:600; color:var(--ink); background:#fff; padding:8px 14px; border-radius:30px; white-space:nowrap; }
   .dot{ width:7px;height:7px;border-radius:50%; background:var(--ink-soft); flex:none; transition:background .2s ease; }
   .dot.on{ background:var(--good); }
   .dot.off{ background:var(--old); }
-  .dot.loading{ background:var(--steel); animation:pulse 1s infinite; }
+  .dot.loading{ background:var(--header-blue); animation:pulse 1s infinite; }
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
 
-  /* BARRA HORIZONTAL DE ESTADISTICAS */
-  .stats-bar{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+  /* BARRA HORIZONTAL DE ESTADISTICAS (KPIs) */
+  .stats-bar{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; align-items:stretch; }
   .stat-pill{
-    flex:1 1 150px; background:var(--surface); border:1px solid var(--line); border-radius:10px;
-    padding:13px 16px; display:flex; flex-direction:column; gap:4px; min-width:130px;
+    flex:1 1 150px; background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    padding:14px 16px; display:flex; flex-direction:column; gap:5px; min-width:130px;
+    border-top:3px solid var(--line);
   }
-  .stat-pill.dark{ background:var(--navy); border-color:var(--navy); }
-  .stat-pill .slabel{ display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em; font-weight:600; }
-  .stat-pill.dark .slabel{ color:rgba(255,255,255,0.55); }
-  .stat-pill .sdot{ width:7px; height:7px; border-radius:50%; flex:none; }
-  .stat-pill .sdot.ACTUALIZADO{ background:var(--good); }
-  .stat-pill .sdot.DESACTUALIZADO{ background:var(--warn); }
-  .stat-pill .sdot.ANTIGUO{ background:var(--old); }
-  .stat-pill .sval{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:var(--ink); }
+  .stat-pill.ACTUALIZADO{ background:var(--good-soft); border-top-color:var(--good); }
+  .stat-pill.DESACTUALIZADO{ background:var(--warn-soft); border-top-color:var(--warn); }
+  .stat-pill.ANTIGUO{ background:var(--old-soft); border-top-color:var(--old); }
+  .stat-pill.dark{ background:var(--navy); border-color:var(--navy); border-top-color:var(--steel-light); }
+  .stat-pill .slabel{ display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--ink-soft); font-weight:600; }
+  .stat-pill.dark .slabel{ color:rgba(255,255,255,0.6); }
+  .stat-pill .semoji{ font-size:15px; }
+  .stat-pill .sval{ font-family:'Space Grotesk', sans-serif; font-size:24px; font-weight:800; color:var(--ink); }
   .stat-pill.dark .sval{ color:#fff; }
-  .stat-pill .sbar{ height:4px; background:var(--surface-alt); border-radius:4px; overflow:hidden; margin-top:2px; }
+  .stat-pill .sbar{ height:4px; background:rgba(0,0,0,0.08); border-radius:4px; overflow:hidden; margin-top:2px; }
   .stat-pill .sbar-fill{ height:100%; border-radius:4px; transition:width .3s ease; }
   .stat-pill .sbar-fill.ACTUALIZADO{ background:var(--good); }
   .stat-pill .sbar-fill.DESACTUALIZADO{ background:var(--warn); }
   .stat-pill .sbar-fill.ANTIGUO{ background:var(--old); }
+
+  .sync-pill{
+    flex:0 0 auto; display:flex; align-items:center; gap:9px; background:var(--navy); color:#fff;
+    border-radius:30px; padding:0 20px; font-family:'IBM Plex Mono', monospace; font-size:12.5px; font-weight:600;
+  }
+  .sync-pill .semoji{ font-size:15px; }
+  .sync-pill b{ font-family:'Space Grotesk', sans-serif; font-size:14px; }
 
   .toolbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
   .search{ flex:1 1 240px; position:relative; }
@@ -83,7 +93,7 @@
   .chip.active::before{ background:#fff; }
   .btn{ font-family:'IBM Plex Sans', sans-serif; font-weight:600; font-size:12.5px; border:none; border-radius:var(--radius); padding:9px 16px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all .12s ease; }
   .btn-ghost{ background:var(--surface); color:var(--ink); border:1px solid var(--line); }
-  .btn-ghost:hover{ border-color:var(--steel); color:var(--steel); }
+  .btn-ghost:hover{ border-color:var(--header-blue); color:var(--header-blue); }
   .btn-ghost.spinning svg{ animation:spin .8s linear infinite; }
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
@@ -92,26 +102,22 @@
 
   .tree, .flat{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:4px; }
 
-  details.folder{ border-bottom:1px solid var(--line); border-left:3px solid var(--steel); background:var(--surface); border-radius:4px; margin:2px 0; }
-  details.folder:last-child{ border-bottom:none; }
-  details.folder.folder-lvl-2{ border-left-color:var(--steel-light); background:var(--surface-alt); }
-  details.folder.folder-lvl-3{ border-left-color:#6B7CA8; background:#F1F3F8; }
-  details.folder.folder-lvl-4{ border-left-color:#8891A8; background:#ECEFF5; }
+  details.folder{ border:1.5px solid var(--line); border-left:4px solid var(--steel); background:var(--surface); border-radius:8px; margin:6px; }
+  details.folder.folder-lvl-2{ border-color:#C7D3EE; border-left-color:var(--steel-light); background:var(--surface-alt); }
+  details.folder.folder-lvl-3{ border-color:#D6DCEA; border-left-color:#6B7CA8; background:#F1F3F8; border-style:dashed; }
+  details.folder.folder-lvl-4{ border-color:#DDE1EC; border-left-color:#8891A8; background:#ECEFF5; border-style:dotted; }
   details.folder > summary{
     list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 16px;
     font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px; color:var(--ink);
     border-radius:6px; transition:background .12s ease;
   }
-  details.folder > summary:hover{ background:rgba(27,58,138,0.05); }
+  details.folder > summary:hover{ background:rgba(20,80,214,0.05); }
   details.folder > summary::-webkit-details-marker{ display:none; }
   details.folder > summary::before{ content:"▸"; color:var(--ink-soft); font-size:11px; transition:transform .15s ease; flex:none; width:10px; }
   details.folder[open] > summary::before{ transform:rotate(90deg); }
   details.folder > summary .fname{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; }
   details.folder > summary .fcount{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); font-weight:400; }
-  .open-tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; font-weight:600; padding:3px 9px; border-radius:20px; border:1px solid var(--line); color:var(--ink-soft); background:var(--surface); white-space:nowrap; }
-  .open-tag.recien{ border-color:var(--steel-light); color:var(--steel); background:#EEF2FC; }
-  .open-tag.abierto{ border-color:var(--line); color:var(--ink-soft); }
-  .folder-children{ padding-left:12px; margin-left:20px; }
+  .folder-children{ padding-left:12px; margin-left:16px; }
 
   .item{
     display:flex; gap:16px; align-items:flex-start; padding:14px 16px; border-radius:6px;
@@ -124,22 +130,27 @@
     flex:none; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;
     transition:transform .18s ease, box-shadow .18s ease; z-index:1;
   }
-  .thumb-wrap:hover{ transform:scale(2.6); z-index:30; box-shadow:0 10px 30px rgba(15,20,32,0.28); border-color:var(--steel); }
+  .thumb-wrap:hover{ transform:scale(2.6); z-index:30; box-shadow:0 10px 30px rgba(15,20,32,0.28); border-color:var(--header-blue); }
   .thumb-icon{ font-size:21px; line-height:1; }
   .thumb-label{ font-family:'IBM Plex Mono', monospace; font-size:7px; color:var(--ink-soft); margin-top:2px; text-align:center; line-height:1.1; }
   .thumb-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .2s ease; }
   .thumb-img.loaded{ opacity:1; }
   .cell-name{ flex:1; min-width:0; }
   .top-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+  .name-line{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .cell-name h4{ font-family:'Space Grotesk', sans-serif; font-size:14px; font-weight:600; margin:0; color:var(--ink); line-height:1.35; }
   .breadcrumb{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--steel-light); margin:4px 0 0; word-break:break-word; }
-  .meta-stack{ display:flex; flex-direction:column; gap:3px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-top:9px; }
-  .meta-stack b{ color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-weight:600; }
+  .meta-cols{ display:flex; gap:24px; margin-top:9px; flex-wrap:wrap; }
+  .meta-cols .col{ display:flex; flex-direction:column; gap:3px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); }
+  .meta-cols b{ color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-weight:600; }
   .badge{ font-family:'IBM Plex Sans', sans-serif; font-size:10.5px; font-weight:600; padding:4px 11px; border-radius:20px; color:#fff; white-space:nowrap; flex:none; }
   .badge.ACTUALIZADO{ background:var(--good); }
   .badge.DESACTUALIZADO{ background:var(--warn); }
   .badge.ANTIGUO{ background:var(--old); }
   .badge.other{ background:var(--ink-soft); }
+  .open-tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; font-weight:600; padding:3px 9px; border-radius:20px; border:1px solid var(--line); color:var(--ink-soft); background:var(--surface); white-space:nowrap; }
+  .open-tag.recien{ border-color:var(--steel-light); color:var(--header-blue); background:#EEF2FC; }
+  .open-tag.abierto{ border-color:var(--line); color:var(--ink-soft); background:var(--surface-alt); }
 
   .empty{ text-align:center; padding:56px 20px; color:var(--ink-soft); }
   .empty h3{ font-family:'Space Grotesk',sans-serif; color:var(--ink); margin:0 0 6px; font-size:16px;}
@@ -158,11 +169,14 @@
   .setup .warn{ background:#EAF4EC; border:1px solid var(--good); border-radius:6px; padding:12px 14px; font-size:13px; margin-top:16px; }
 
   @media (max-width:640px){
+    header{ grid-template-columns:auto 1fr; }
+    .status{ grid-column:1 / -1; justify-self:start; }
     .item{ padding:12px; gap:12px; }
     .thumb-wrap{ width:44px; height:44px; }
     .thumb-wrap:hover{ transform:scale(2.2); }
     .thumb-icon{ font-size:17px; }
     .top-row{ flex-direction:column; gap:6px; }
+    .meta-cols{ gap:14px; }
   }
 </style>
 </head>
@@ -187,41 +201,40 @@
   <header>
     <div class="brand">
       <div class="mark"><span></span></div>
-      <div>
-        <h1>Índice Gestión Documentario I+D</h1>
-        <p>Laboratorio de Aplicaciones I&amp;D</p>
-      </div>
+    </div>
+    <div class="title-block">
+      <h1>Índice Gestión Documentario I+D</h1>
+      <p>Laboratorio de Aplicaciones I&amp;D</p>
     </div>
     <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Cargando…</span></div>
   </header>
 
   <div class="stats-bar">
-    <div class="stat-pill">
-      <span class="slabel"><span class="sdot ACTUALIZADO"></span>Actualizado</span>
+    <div class="stat-pill ACTUALIZADO">
+      <span class="slabel"><span class="semoji">🟢</span>Actualizado</span>
       <span class="sval" id="cntACTUALIZADO">0</span>
       <div class="sbar"><div class="sbar-fill ACTUALIZADO" id="barACTUALIZADO" style="width:0%"></div></div>
     </div>
-    <div class="stat-pill">
-      <span class="slabel"><span class="sdot DESACTUALIZADO"></span>Desactualizado</span>
+    <div class="stat-pill DESACTUALIZADO">
+      <span class="slabel"><span class="semoji">🟠</span>Desactualizado</span>
       <span class="sval" id="cntDESACTUALIZADO">0</span>
       <div class="sbar"><div class="sbar-fill DESACTUALIZADO" id="barDESACTUALIZADO" style="width:0%"></div></div>
     </div>
-    <div class="stat-pill">
-      <span class="slabel"><span class="sdot ANTIGUO"></span>Antiguo</span>
+    <div class="stat-pill ANTIGUO">
+      <span class="slabel"><span class="semoji">🔴</span>Antiguo</span>
       <span class="sval" id="cntANTIGUO">0</span>
       <div class="sbar"><div class="sbar-fill ANTIGUO" id="barANTIGUO" style="width:0%"></div></div>
     </div>
     <div class="stat-pill dark">
-      <span class="slabel">Carpetas</span>
+      <span class="slabel"><span class="semoji">📁</span>Carpetas</span>
       <span class="sval" id="cntCarpetas">0</span>
     </div>
     <div class="stat-pill dark">
-      <span class="slabel">Archivos totales</span>
+      <span class="slabel"><span class="semoji">🗂️</span>Archivos totales</span>
       <span class="sval" id="cntArchivosTotal">0</span>
     </div>
-    <div class="stat-pill dark">
-      <span class="slabel">Próxima sync</span>
-      <span class="sval" id="cntProximaSync" style="font-size:16px;">—</span>
+    <div class="sync-pill">
+      <span class="semoji">⏱️</span>Próxima sync <b id="cntProximaSync">—</b>
     </div>
   </div>
 
@@ -296,16 +309,16 @@ function initApp(){
   let cargando = false;
   let ultimaCarga = null;
 
-  const OPEN_KEY = 'idx_folder_opens_v1';
+  const OPEN_KEY = 'idx_archivo_opens_v1';
   function leerAperturas(){ try{ return JSON.parse(localStorage.getItem(OPEN_KEY) || '{}'); }catch(e){ return {}; } }
-  function guardarApertura(ruta){
+  function guardarApertura(clave){
     const datos = leerAperturas();
-    datos[ruta] = Date.now();
+    datos[clave] = Date.now();
     try{ localStorage.setItem(OPEN_KEY, JSON.stringify(datos)); }catch(e){}
   }
-  function estadoAperturaCarpeta(ruta){
+  function estadoAperturaArchivo(clave){
     const datos = leerAperturas();
-    const t = datos[ruta];
+    const t = datos[clave];
     if(!t) return { texto:'No abierto', clase:'' };
     const minutos = (Date.now() - t) / 60000;
     if(minutos < 30) return { texto:'Recién abierto', clase:'recien' };
@@ -470,21 +483,30 @@ function initApp(){
         <span class="thumb-label">${escapeHtml(r.nombreTipo)}</span>
         ${r.Miniatura ? `<img class="thumb-img" src="${escapeHtml(r.Miniatura)}" onload="this.classList.add('loaded')" onerror="this.remove()" alt="">` : ''}
       </div>`;
+    const claveApertura = r.Link || r.Ruta;
+    const apertura = estadoAperturaArchivo(claveApertura);
     return `
-      <a class="item" href="${escapeHtml(r.Link || '#')}" target="_blank" rel="noopener noreferrer">
+      <a class="item" href="${escapeHtml(r.Link || '#')}" target="_blank" rel="noopener noreferrer" data-apertura-clave="${escapeHtml(claveApertura)}">
         ${thumb}
         <div class="cell-name">
           <div class="top-row">
-            <h4>${escapeHtml(r.Nombre)}</h4>
+            <div class="name-line">
+              <h4>${escapeHtml(r.Nombre)}</h4>
+              <span class="open-tag ${apertura.clase}">${apertura.texto}</span>
+            </div>
             <span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span>
           </div>
           <p class="breadcrumb">${escapeHtml(r.Ruta)}</p>
-          <div class="meta-stack">
-            ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
-            ${r.UltimaPersona ? `<span><b>Última edición por:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
-            <span><b>Creado:</b> ${formatoFechaHora(r.FechaRegistro)}</span>
-            <span><b>Modificado:</b> ${formatoFechaHora(r.FechaActualizacion)}</span>
-            ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
+          <div class="meta-cols">
+            <div class="col">
+              ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
+              ${r.UltimaPersona ? `<span><b>Última edición por:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
+            </div>
+            <div class="col">
+              <span><b>Creado:</b> ${formatoFechaHora(r.FechaRegistro)}</span>
+              <span><b>Modificado:</b> ${formatoFechaHora(r.FechaActualizacion)}</span>
+              ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
+            </div>
           </div>
         </div>
       </a>`;
@@ -513,25 +535,18 @@ function initApp(){
       if(r.esCarpeta){
         const n = contarDescendientes(list, i);
         const nivel = Math.min(depth, 4);
-        const apertura = estadoAperturaCarpeta(r.Ruta);
         const details = document.createElement('details');
         details.className = 'folder folder-lvl-' + nivel;
         details.open = depth === 1;
-        details.innerHTML = `<summary><span class="fname">${r.icono} ${escapeHtml(r.Nombre)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><span class="open-tag ${apertura.clase}" data-ruta="${escapeHtml(r.Ruta)}">${apertura.texto}</span><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
-        details.addEventListener('toggle', () => {
-          if(details.open){
-            guardarApertura(r.Ruta);
-            const tag = details.querySelector('.open-tag');
-            tag.textContent = 'Recién abierto';
-            tag.className = 'open-tag recien';
-          }
-        });
+        details.innerHTML = `<summary><span class="fname">${r.icono} ${escapeHtml(r.Nombre)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
         parentEl.appendChild(details);
         stack.push({ depth, el: details.querySelector('.folder-children') });
       } else {
         const div = document.createElement('div');
         div.innerHTML = renderItem(r);
-        parentEl.appendChild(div.firstElementChild);
+        const enlace = div.firstElementChild;
+        enlace.addEventListener('click', () => guardarApertura(enlace.dataset.aperturaClave));
+        parentEl.appendChild(enlace);
       }
     });
     return root;
@@ -543,7 +558,9 @@ function initApp(){
     list.forEach(r=>{
       const div = document.createElement('div');
       div.innerHTML = renderItem(r);
-      root.appendChild(div.firstElementChild);
+      const enlace = div.firstElementChild;
+      enlace.addEventListener('click', () => guardarApertura(enlace.dataset.aperturaClave));
+      root.appendChild(enlace);
     });
     return root;
   }
