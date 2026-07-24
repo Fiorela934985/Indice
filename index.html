@@ -121,18 +121,19 @@
   details.folder > summary .fcount{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); font-weight:400; }
   .folder-children{ padding-left:12px; margin-left:16px; }
 
+  .item-row{ display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--line); }
+  .item-row:last-child{ border-bottom:none; }
   .item{
-    display:flex; gap:16px; align-items:flex-start; padding:14px 16px; border-radius:6px;
-    border-bottom:1px solid var(--line); text-decoration:none; color:inherit; transition:background .12s ease;
+    flex:1; min-width:0; display:flex; gap:16px; align-items:flex-start; padding:14px 16px; border-radius:6px;
+    text-decoration:none; color:inherit; transition:background .12s ease;
   }
-  .item:last-child{ border-bottom:none; }
   .item:hover{ background:var(--surface-alt); }
   .thumb-wrap{
     width:56px; height:56px; border-radius:6px; background:var(--surface-alt); border:1px solid var(--line);
     flex:none; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;
     transition:transform .18s ease, box-shadow .18s ease; z-index:1;
   }
-  .thumb-wrap:hover{ transform:scale(2.6); z-index:30; box-shadow:0 10px 30px rgba(15,20,32,0.28); border-color:var(--header-blue); }
+  .thumb-wrap:has(.thumb-img.loaded):hover{ transform:scale(2.6); z-index:30; box-shadow:0 10px 30px rgba(15,20,32,0.28); border-color:var(--header-blue); }
   .thumb-icon{ font-size:21px; line-height:1; }
   .thumb-label{ font-family:'IBM Plex Mono', monospace; font-size:7px; color:var(--ink-soft); margin-top:2px; text-align:center; line-height:1.1; }
   .thumb-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .2s ease; }
@@ -153,6 +154,24 @@
   .open-tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; font-weight:600; padding:3px 9px; border-radius:20px; border:1px dashed var(--line); color:var(--ink-soft); background:var(--surface-alt); white-space:nowrap; }
   .open-tag.recien{ border:1px solid var(--header-blue); color:#fff; background:var(--header-blue); }
   .open-tag.abierto{ border:1px solid var(--good); color:var(--good); background:var(--good-soft); }
+
+  /* --- Notas internas y cadena de aprobación (nuevo) --- */
+  .actions-col{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; flex:none; padding:14px 16px 14px 0; }
+  .mini-btn{
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft);
+    font-family:'IBM Plex Sans', sans-serif; font-size:11px; font-weight:600; border-radius:20px;
+    padding:5px 12px; cursor:pointer; white-space:nowrap; transition:all .12s ease;
+  }
+  .mini-btn:hover{ border-color:var(--steel-light); color:var(--ink); }
+  .aprob-btn.sin_revisar{ color:var(--ink-soft); }
+  .aprob-btn.revision{ border-color:var(--warn); color:var(--warn); background:var(--warn-soft); }
+  .aprob-btn.aprobado{ border-color:var(--good); color:var(--good); background:var(--good-soft); }
+  .nota-linea{
+    display:flex; align-items:center; gap:6px; font-size:11.5px; color:#fff;
+    background:var(--header-blue); border-radius:5px; padding:5px 10px; margin-top:8px;
+    max-width:fit-content;
+  }
+  .nota-linea .nota-icono{ flex:none; }
 
   .empty{ text-align:center; padding:56px 20px; color:var(--ink-soft); }
   .empty h3{ font-family:'Space Grotesk',sans-serif; color:var(--ink); margin:0 0 6px; font-size:16px;}
@@ -175,10 +194,12 @@
     .status{ grid-column:1 / -1; justify-self:start; }
     .item{ padding:12px; gap:12px; }
     .thumb-wrap{ width:44px; height:44px; }
-    .thumb-wrap:hover{ transform:scale(2.2); }
+    .thumb-wrap:has(.thumb-img.loaded):hover{ transform:scale(2.2); }
     .thumb-icon{ font-size:17px; }
     .top-row{ flex-direction:column; gap:6px; }
     .meta-cols{ gap:14px; }
+    .item-row{ flex-direction:column; align-items:stretch; }
+    .actions-col{ flex-direction:row; align-items:center; padding:0 12px 12px; }
   }
 </style>
 </head>
@@ -271,7 +292,7 @@
   </div>
 
   <footer>
-    <span>Datos leídos en vivo a través del backend · se auto-actualiza cada 5 min</span>
+    <span>Datos leídos en vivo a través del backend · se auto-actualiza cada 2 min</span>
     <span id="footNote"></span>
   </footer>
 
@@ -325,6 +346,32 @@ function initApp(){
     const minutos = (Date.now() - t) / 60000;
     if(minutos < 30) return { texto:'Recién abierto', clase:'recien' };
     return { texto:'Abierto', clase:'abierto' };
+  }
+
+  /* ---- NUEVO: Cadena de aprobación por archivo ---- */
+  const APROB_KEY = 'idx_aprobacion_v1';
+  const APROB_ORDEN = ['sin_revisar','revision','aprobado'];
+  const APROB_TEXTO = { sin_revisar:'Sin revisar', revision:'En revisión', aprobado:'Aprobado' };
+  function leerAprobaciones(){ try{ return JSON.parse(localStorage.getItem(APROB_KEY) || '{}'); }catch(e){ return {}; } }
+  function estadoAprobacion(clave){ return leerAprobaciones()[clave] || 'sin_revisar'; }
+  function avanzarAprobacion(clave){
+    const datos = leerAprobaciones();
+    const actual = datos[clave] || 'sin_revisar';
+    datos[clave] = APROB_ORDEN[(APROB_ORDEN.indexOf(actual) + 1) % APROB_ORDEN.length];
+    try{ localStorage.setItem(APROB_KEY, JSON.stringify(datos)); }catch(e){}
+  }
+
+  /* ---- NUEVO: Notas internas por archivo ---- */
+  const NOTAS_KEY = 'idx_notas_v1';
+  function leerNotas(){ try{ return JSON.parse(localStorage.getItem(NOTAS_KEY) || '{}'); }catch(e){ return {}; } }
+  function notaDe(clave){ return leerNotas()[clave] || ''; }
+  function editarNota(clave, nombre){
+    const notas = leerNotas();
+    const nueva = prompt(`Nota interna para "${nombre}" (solo la ves tú, en este navegador):`, notas[clave] || '');
+    if(nueva === null) return;
+    if(nueva.trim() === ''){ delete notas[clave]; } else { notas[clave] = nueva.trim(); }
+    try{ localStorage.setItem(NOTAS_KEY, JSON.stringify(notas)); }catch(e){}
+    render();
   }
 
   function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
@@ -487,31 +534,56 @@ function initApp(){
       </div>`;
     const claveApertura = r.Link || r.Ruta;
     const apertura = estadoAperturaArchivo(claveApertura);
+    const aprobacion = estadoAprobacion(claveApertura);
+    const nota = notaDe(claveApertura);
     return `
-      <a class="item" href="${escapeHtml(r.Link || '#')}" target="_blank" rel="noopener noreferrer" data-apertura-clave="${escapeHtml(claveApertura)}">
-        ${thumb}
-        <div class="cell-name">
-          <div class="top-row">
-            <div class="name-line">
-              <h4>${escapeHtml(r.Nombre)}</h4>
-              <span class="open-tag ${apertura.clase}">${apertura.texto}</span>
+      <div class="item-row" data-clave="${escapeHtml(claveApertura)}" data-nombre="${escapeHtml(r.Nombre)}">
+        <a class="item" href="${escapeHtml(r.Link || '#')}" target="_blank" rel="noopener noreferrer" data-apertura-clave="${escapeHtml(claveApertura)}">
+          ${thumb}
+          <div class="cell-name">
+            <div class="top-row">
+              <div class="name-line">
+                <h4>${escapeHtml(r.Nombre)}</h4>
+                <span class="open-tag ${apertura.clase}">${apertura.texto}</span>
+              </div>
+              <span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span>
             </div>
-            <span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span>
+            <p class="breadcrumb">${escapeHtml(r.Ruta)}</p>
+            <div class="meta-cols">
+              <div class="col">
+                ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
+                ${r.UltimaPersona ? `<span><b>Última edición por:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
+                ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
+              </div>
+              <div class="col">
+                <span><b>Creado:</b> ${formatoFechaHora(r.FechaRegistro)}</span>
+                <span><b>Modificado:</b> ${formatoFechaHora(r.FechaActualizacion)}</span>
+              </div>
+            </div>
+            ${nota ? `<p class="nota-linea"><span class="nota-icono">💬</span>${escapeHtml(nota)}</p>` : ''}
           </div>
-          <p class="breadcrumb">${escapeHtml(r.Ruta)}</p>
-          <div class="meta-cols">
-            <div class="col">
-              ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
-              ${r.UltimaPersona ? `<span><b>Última edición por:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
-              ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
-            </div>
-            <div class="col">
-              <span><b>Creado:</b> ${formatoFechaHora(r.FechaRegistro)}</span>
-              <span><b>Modificado:</b> ${formatoFechaHora(r.FechaActualizacion)}</span>
-            </div>
-          </div>
+        </a>
+        <div class="actions-col">
+          <button class="mini-btn aprob-btn ${aprobacion}" data-clave="${escapeHtml(claveApertura)}" title="Clic para cambiar el estado de revisión">${APROB_TEXTO[aprobacion]}</button>
+          <button class="mini-btn nota-btn" data-clave="${escapeHtml(claveApertura)}" title="Agregar/editar nota">💬 Nota</button>
         </div>
-      </a>`;
+      </div>`;
+  }
+
+  function conectarFila(fila){
+    const enlace = fila.querySelector('.item');
+    enlace.addEventListener('click', () => guardarApertura(enlace.dataset.aperturaClave));
+    const aprobBtn = fila.querySelector('.aprob-btn');
+    aprobBtn.addEventListener('click', (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      avanzarAprobacion(aprobBtn.dataset.clave);
+      render();
+    });
+    const notaBtn = fila.querySelector('.nota-btn');
+    notaBtn.addEventListener('click', (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      editarNota(notaBtn.dataset.clave, fila.dataset.nombre);
+    });
   }
 
   function contarDescendientes(list, index){
@@ -546,9 +618,9 @@ function initApp(){
       } else {
         const div = document.createElement('div');
         div.innerHTML = renderItem(r);
-        const enlace = div.firstElementChild;
-        enlace.addEventListener('click', () => guardarApertura(enlace.dataset.aperturaClave));
-        parentEl.appendChild(enlace);
+        const fila = div.firstElementChild;
+        conectarFila(fila);
+        parentEl.appendChild(fila);
       }
     });
     return root;
@@ -560,9 +632,9 @@ function initApp(){
     list.forEach(r=>{
       const div = document.createElement('div');
       div.innerHTML = renderItem(r);
-      const enlace = div.firstElementChild;
-      enlace.addEventListener('click', () => guardarApertura(enlace.dataset.aperturaClave));
-      root.appendChild(enlace);
+      const fila = div.firstElementChild;
+      conectarFila(fila);
+      root.appendChild(fila);
     });
     return root;
   }
@@ -642,14 +714,13 @@ function initApp(){
       chip.classList.add('active');
       estadoFiltro = chip.dataset.v;
       render();
-      
     });
   });
 
   searchInput.addEventListener('input', render);
   refreshBtn.addEventListener('click', () => cargarDatos(true));
 
-  // AUTOMATIZACIÓN: se auto-actualiza sola cada 5 min, y al volver a la pestaña si ya pasó ese tiempo
+  // AUTOMATIZACIÓN: se auto-actualiza sola cada 2 min, y al volver a la pestaña si ya pasó ese tiempo
   setInterval(() => cargarDatos(false), AUTO_REFRESH_MS);
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible' && ultimaCarga && (Date.now() - ultimaCarga > AUTO_REFRESH_MS)){
