@@ -105,6 +105,13 @@
   .tree, .flat{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:4px; }
 
   details.folder{ border:1.5px solid var(--line); border-left:4px solid var(--steel); background:var(--surface); border-radius:8px; margin:6px; }
+  details.folder.folder-lvl-1{
+    border:2px solid var(--header-blue); border-left:6px solid var(--header-blue);
+    background:linear-gradient(180deg, #EEF3FE 0%, var(--surface) 60px);
+    border-radius:10px; box-shadow:0 2px 8px rgba(20,80,214,0.08);
+  }
+  details.folder.folder-lvl-1 > summary{ font-size:15.5px; font-weight:700; padding:16px 18px; }
+  details.folder.folder-lvl-1 > summary .fname::before{ content:"📌 "; }
   details.folder.folder-lvl-2{ border-color:#C7D3EE; border-left-color:var(--steel-light); background:var(--surface-alt); }
   details.folder.folder-lvl-3{ border-color:#D6DCEA; border-left-color:#6B7CA8; background:#F1F3F8; border-style:dashed; }
   details.folder.folder-lvl-4{ border-color:#DDE1EC; border-left-color:#8891A8; background:#ECEFF5; border-style:dotted; }
@@ -180,6 +187,25 @@
     .top-row{ flex-direction:column; gap:6px; }
     .meta-cols{ gap:14px; }
   }
+  .stat-pill.ANTIGUO.alerta{ animation:alertaPulse 1.6s infinite; box-shadow:0 0 0 0 rgba(163,32,32,0.5); }
+  @keyframes alertaPulse{
+    0%{ box-shadow:0 0 0 0 rgba(163,32,32,0.45); }
+    70%{ box-shadow:0 0 0 8px rgba(163,32,32,0); }
+    100%{ box-shadow:0 0 0 0 rgba(163,32,32,0); }
+  }
+
+  .history-bar{ display:flex; align-items:center; gap:10px; background:#EEF3FE; border:1px solid #C7D3EE; border-radius:8px; padding:10px 16px; font-size:12.5px; color:var(--ink); margin-bottom:14px; }
+  .history-bar b{ font-weight:700; }
+  .history-bar.sin-cambios{ background:var(--surface-alt); border-color:var(--line); color:var(--ink-soft); }
+
+  .offline-banner{ display:flex; align-items:center; gap:10px; background:var(--warn-soft); border:1px solid var(--warn); border-radius:8px; padding:10px 16px; font-size:12.5px; color:var(--ink); margin-bottom:14px; }
+
+  .breadcrumb a{ color:var(--steel-light); text-decoration:none; }
+  .breadcrumb a:hover{ text-decoration:underline; }
+  .breadcrumb .sep{ color:var(--ink-soft); margin:0 3px; }
+
+  @keyframes flashHighlight{ 0%,100%{ background:var(--surface); } 40%{ background:#DCE7FB; } }
+  details.folder.flash-highlight{ animation:flashHighlight 1.2s ease; }
 </style>
 </head>
 <body>
@@ -202,7 +228,9 @@
 
   <header>
     <div class="brand">
-      <div class="mark"><span></span></div>
+      <div class="sync-pill" id="syncPill">
+        <span class="semoji">⏱️</span>Próxima sync <b id="cntProximaSync">—</b>
+      </div>
     </div>
     <div class="title-block">
       <h1>Índice Gestión Documentario I+D</h1>
@@ -212,9 +240,6 @@
   </header>
 
   <div class="stats-bar">
-    <div class="sync-pill" id="syncPill">
-      <span class="semoji">⏱️</span>Próxima sync <b id="cntProximaSync">—</b>
-    </div>
     <div class="stat-pill ACTUALIZADO">
       <span class="slabel"><span class="semoji">🟢</span>Actualizado</span>
       <span class="sval" id="cntACTUALIZADO">0</span>
@@ -251,11 +276,17 @@
       <button class="chip" data-v="DESACTUALIZADO">Desactualizado</button>
       <button class="chip" data-v="ANTIGUO">Antiguo</button>
     </div>
+    <button class="btn btn-ghost" id="exportCsvBtn" title="Descargar como Excel (CSV)">⬇️ Excel</button>
+    <button class="btn btn-ghost" id="exportPdfBtn" title="Descargar como PDF">⬇️ PDF</button>
     <button class="btn btn-ghost" id="refreshBtn">
       <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       Actualizar
     </button>
   </div>
+
+  <div class="history-bar" id="historyBar" style="display:none;"></div>
+
+  <div class="offline-banner" id="offlineBanner" style="display:none;"></div>
 
   <div class="count-row">
     <span class="count-pill" id="countPill">— elementos</span>
@@ -271,12 +302,14 @@
   </div>
 
   <footer>
-    <span>Datos leídos en vivo a través del backend · se auto-actualiza cada 5 min</span>
+    <span>Datos leídos en vivo a través del backend · se auto-actualiza cada 2 min</span>
     <span id="footNote"></span>
   </footer>
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script>
 /* ======================================================
    CONFIGURACIÓN — pega la URL de tu Worker de Cloudflare.
@@ -305,6 +338,10 @@ function initApp(){
   const lastUpdate = document.getElementById('lastUpdate');
   const footNote = document.getElementById('footNote');
   const refreshBtn = document.getElementById('refreshBtn');
+  const exportCsvBtn = document.getElementById('exportCsvBtn');
+  const exportPdfBtn = document.getElementById('exportPdfBtn');
+  const historyBar = document.getElementById('historyBar');
+  const offlineBanner = document.getElementById('offlineBanner');
 
   let rows = [];
   let estadoFiltro = 'todos';
@@ -327,7 +364,49 @@ function initApp(){
     return { texto:'Abierto', clase:'abierto' };
   }
 
+  // ---- Historial de cambios entre sincronizaciones ----
+  const HISTORY_KEY = 'idx_historial_v1';
+  function leerHistorialPrevio(){ try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}'); }catch(e){ return {}; } }
+  function guardarHistorial(mapa){ try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(mapa)); }catch(e){} }
+  function calcularYMostrarCambios(archivosActuales){
+    const previo = leerHistorialPrevio();
+    const huboHistorialPrevio = Object.keys(previo).length > 0;
+    const actualMapa = {};
+    let nuevos = 0, modificados = 0;
+    archivosActuales.forEach(a=>{
+      actualMapa[a.Ruta] = a.FechaActualizacion;
+      if(!(a.Ruta in previo)) nuevos++;
+      else if(previo[a.Ruta] !== a.FechaActualizacion) modificados++;
+    });
+    let eliminados = 0;
+    Object.keys(previo).forEach(ruta=>{ if(!(ruta in actualMapa)) eliminados++; });
+    guardarHistorial(actualMapa);
+
+    if(!huboHistorialPrevio){
+      historyBar.style.display = 'none';
+      return;
+    }
+    historyBar.style.display = 'flex';
+    if(nuevos === 0 && modificados === 0 && eliminados === 0){
+      historyBar.className = 'history-bar sin-cambios';
+      historyBar.innerHTML = '🕓 Sin cambios desde la última sincronización.';
+    } else {
+      historyBar.className = 'history-bar';
+      const partes = [];
+      if(nuevos) partes.push(`<b>${nuevos}</b> nuevo${nuevos===1?'':'s'}`);
+      if(modificados) partes.push(`<b>${modificados}</b> modificado${modificados===1?'':'s'}`);
+      if(eliminados) partes.push(`<b>${eliminados}</b> eliminado${eliminados===1?'':'s'}`);
+      historyBar.innerHTML = '📋 Desde la última sincronización: ' + partes.join(' · ');
+    }
+  }
+
+  // ---- Modo offline: última copia guardada en el navegador ----
+  const CACHE_KEY = 'idx_cache_v1';
+  function guardarCache(datosRows){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ rows: datosRows, ts: Date.now() })); }catch(e){} }
+  function leerCache(){ try{ return JSON.parse(localStorage.getItem(CACHE_KEY)); }catch(e){ return null; } }
+
   function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+
 
   function estadoDeFecha(fechaTexto){
     if(!fechaTexto) return '—';
@@ -406,17 +485,20 @@ function initApp(){
   async function recorrerCarpeta(folderId, rutaPadre, profundidad, itemsPorCarpeta){
     const meta = await obtenerMeta(folderId);
     const ruta = rutaPadre ? (rutaPadre + ' / ' + meta.name) : meta.name;
-    const propios = [construirItem(meta, ruta, profundidad, true)];
+    const carpetaPropia = construirItem(meta, ruta, profundidad, true);
 
     const hijos = await listarHijos(folderId);
     const subcarpetas = [];
+    const archivos = [];
     hijos.forEach(f=>{
       if(f.mimeType === 'application/vnd.google-apps.folder'){
         subcarpetas.push(f.id);
       } else {
-        propios.push(construirItem(f, ruta + ' / ' + f.name, profundidad + 1, false));
+        archivos.push(construirItem(f, ruta + ' / ' + f.name, profundidad + 1, false));
       }
     });
+    archivos.sort((a,b) => a.Nombre.localeCompare(b.Nombre, 'es', {sensitivity:'base'}));
+    const propios = [carpetaPropia, ...archivos];
 
     itemsPorCarpeta.push(propios);
 
@@ -441,13 +523,25 @@ function initApp(){
       statusDot.className = 'dot on';
       statusText.textContent = 'Conectado';
       lastUpdate.textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-PE');
+      offlineBanner.style.display = 'none';
+      guardarCache(rows);
+      calcularYMostrarCambios(rows.filter(r => !r.esCarpeta));
       render();
     }catch(e){
       console.error(e);
       statusDot.className = 'dot off';
       statusText.textContent = 'Sin conexión';
       if(rows.length === 0){
-        container.innerHTML = `<div class="empty"><h3>No se pudo leer tu Drive</h3><p>Revisa que tu backend en Cloudflare esté desplegado y accesible.</p></div>`;
+        const cache = leerCache();
+        if(cache && cache.rows && cache.rows.length){
+          rows = cache.rows;
+          const cuando = new Date(cache.ts).toLocaleString('es-PE');
+          offlineBanner.style.display = 'flex';
+          offlineBanner.innerHTML = `⚠️ Sin conexión con el backend — mostrando la última copia guardada en este navegador (${escapeHtml(cuando)}).`;
+          render();
+        } else {
+          container.innerHTML = `<div class="empty"><h3>No se pudo leer tu Drive</h3><p>Revisa que tu backend en Cloudflare esté desplegado y accesible.</p></div>`;
+        }
       }
     } finally {
       cargando = false;
@@ -478,6 +572,47 @@ function initApp(){
     return 'other';
   }
 
+  function renderBreadcrumb(ruta){
+    const segmentos = ruta.split(' / ');
+    let acumulado = '';
+    return segmentos.map((seg, i) => {
+      acumulado = i === 0 ? seg : acumulado + ' / ' + seg;
+      const rutaSegmento = acumulado;
+      const esUltimo = i === segmentos.length - 1;
+      const sep = i > 0 ? '<span class="sep">/</span>' : '';
+      if(esUltimo) return sep + escapeHtml(seg);
+      return `${sep}<a href="#" data-ir-a="${escapeHtml(rutaSegmento)}">${escapeHtml(seg)}</a>`;
+    }).join(' ');
+  }
+
+  function irACarpeta(ruta){
+    const el = container.querySelector(`details.folder[data-ruta="${(window.CSS && CSS.escape) ? CSS.escape(ruta) : ruta}"]`);
+    if(!el) return;
+    let p = el;
+    while(p){
+      if(p.tagName === 'DETAILS') p.open = true;
+      p = p.parentElement ? p.parentElement.closest('details.folder') : null;
+    }
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+    el.classList.remove('flash-highlight');
+    void el.offsetWidth;
+    el.classList.add('flash-highlight');
+  }
+
+  container.addEventListener('click', (e)=>{
+    const link = e.target.closest('a[data-ir-a]');
+    if(!link) return;
+    e.preventDefault();
+    if(searchInput.value || estadoFiltro !== 'todos'){
+      searchInput.value = '';
+      estadoFiltro = 'todos';
+      chipGroup.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chipGroup.querySelector('.chip[data-v="todos"]').classList.add('active');
+      render();
+    }
+    irACarpeta(link.dataset.irA);
+  });
+
   function renderItem(r){
     const thumb = `
       <div class="thumb-wrap">
@@ -498,7 +633,7 @@ function initApp(){
             </div>
             <span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span>
           </div>
-          <p class="breadcrumb">${escapeHtml(r.Ruta)}</p>
+          <p class="breadcrumb">${renderBreadcrumb(r.Ruta)}</p>
           <div class="meta-cols">
             <div class="col">
               ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
@@ -539,6 +674,7 @@ function initApp(){
         const nivel = Math.min(depth, 4);
         const details = document.createElement('details');
         details.className = 'folder folder-lvl-' + nivel;
+        details.dataset.ruta = r.Ruta;
         details.open = depth === 1;
         details.innerHTML = `<summary><span class="fname">${r.icono} ${escapeHtml(r.Nombre)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
         parentEl.appendChild(details);
@@ -579,6 +715,13 @@ function initApp(){
       if(cntEl) cntEl.textContent = n;
       if(barEl) barEl.style.width = Math.round((n / total) * 100) + '%';
     });
+
+    const nAntiguo = archivos.filter(r => r.Estado === 'ANTIGUO').length;
+    const pillAntiguo = document.querySelector('.stat-pill.ANTIGUO');
+    if(pillAntiguo){
+      const alerta = nAntiguo >= 5 || (nAntiguo / total) > 0.25;
+      pillAntiguo.classList.toggle('alerta', alerta);
+    }
 
     const elCarpetas = document.getElementById('cntCarpetas');
     const elArchivos = document.getElementById('cntArchivosTotal');
@@ -646,9 +789,63 @@ function initApp(){
   });
 
   searchInput.addEventListener('input', render);
+  function descargarBlob(blob, nombreArchivo){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nombreArchivo;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(url), 2000);
+  }
+
+  function archivosParaExportar(){
+    // respeta el filtro/búsqueda actual; si no hay ninguno, exporta todos los archivos
+    const q = searchInput.value.trim().toLowerCase();
+    return rows.filter(r=>{
+      if(r.esCarpeta) return false;
+      const okEstado = estadoFiltro === 'todos' || r.Estado === estadoFiltro;
+      const okTexto = !q || (r.Nombre||'').toLowerCase().includes(q) || (r.Ruta||'').toLowerCase().includes(q);
+      return okEstado && okTexto;
+    });
+  }
+
+  function exportarCSV(){
+    const datos = archivosParaExportar();
+    const encabezados = ['Nombre','Ruta','Creador','Última edición por','Creado','Modificado','Peso','Estado','Link'];
+    const filas = datos.map(r => [
+      r.Nombre, r.Ruta, r.Creador, r.UltimaPersona,
+      formatoFechaHora(r.FechaRegistro), formatoFechaHora(r.FechaActualizacion),
+      r.Peso, r.Estado, r.Link
+    ]);
+    const csv = [encabezados, ...filas]
+      .map(fila => fila.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(','))
+      .join('\r\n');
+    descargarBlob(new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'}), 'indice-drive.csv');
+  }
+
+  function exportarPDF(){
+    if(!window.jspdf){ alert('No se pudo cargar el generador de PDF. Revisa tu conexión e intenta de nuevo.'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'landscape' });
+    doc.setFontSize(14);
+    doc.text('Índice Gestión Documentario I+D', 14, 16);
+    doc.setFontSize(9);
+    doc.text('Generado: ' + new Date().toLocaleString('es-PE'), 14, 22);
+    const datos = archivosParaExportar();
+    doc.autoTable({
+      startY: 27,
+      head: [['Nombre','Ruta','Creador','Última edición','Modificado','Peso','Estado']],
+      body: datos.map(r => [r.Nombre, r.Ruta, r.Creador, r.UltimaPersona, formatoFechaHora(r.FechaActualizacion), r.Peso, r.Estado]),
+      styles:{ fontSize:7 },
+      headStyles:{ fillColor:[20,80,214] }
+    });
+    doc.save('indice-drive.pdf');
+  }
+
+  exportCsvBtn.addEventListener('click', exportarCSV);
+  exportPdfBtn.addEventListener('click', exportarPDF);
   refreshBtn.addEventListener('click', () => cargarDatos(true));
 
-  // AUTOMATIZACIÓN: se auto-actualiza sola cada 5 min, y al volver a la pestaña si ya pasó ese tiempo
+  // AUTOMATIZACIÓN: se auto-actualiza sola cada 2 min, y al volver a la pestaña si ya pasó ese tiempo
   setInterval(() => cargarDatos(false), AUTO_REFRESH_MS);
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible' && ultimaCarga && (Date.now() - ultimaCarga > AUTO_REFRESH_MS)){
