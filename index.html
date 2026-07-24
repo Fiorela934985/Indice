@@ -172,10 +172,13 @@
   .aprob-btn.revision{ border-color:var(--warn); color:var(--warn); background:var(--warn-soft); }
   .aprob-btn.aprobado{ border-color:var(--good); color:var(--good); background:var(--good-soft); }
   .nota-btn{ padding:2.5px 7px; }
-  .nota-linea{ font-size:9.5px; color:var(--steel); font-style:italic; margin:2px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .regla-btn{ background:none; border:none; cursor:pointer; font-size:10px; padding:0 2px; flex:none; opacity:.55; }
-  .regla-btn:hover{ opacity:1; }
-  .regla-activa{ color:var(--header-blue); opacity:1; }
+  .nota-linea{
+    display:flex; align-items:center; gap:6px; font-size:9.5px; color:var(--ink); font-style:normal;
+    margin:3px 0 0; background:#FFF8E1; border:1px solid #F0DFA0; border-radius:5px; padding:3px 8px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:fit-content;
+  }
+  .nota-linea .nota-icono{ flex:none; font-size:10px; }
+  .regla-btn{ display:none; }
 
   .empty{ text-align:center; padding:56px 20px; color:var(--ink-soft); }
   .empty h3{ font-family:'Space Grotesk',sans-serif; color:var(--ink); margin:0 0 6px; font-size:16px;}
@@ -447,49 +450,8 @@ function initApp(){
     return 'ANTIGUO';
   }
 
-  // ---- Reglas de vigencia personalizadas por carpeta ----
-  const REGLAS_KEY = 'idx_reglas_vigencia_v1';
-  function leerReglas(){ try{ return JSON.parse(localStorage.getItem(REGLAS_KEY) || '{}'); }catch(e){ return {}; } }
-  function guardarReglas(mapa){ try{ localStorage.setItem(REGLAS_KEY, JSON.stringify(mapa)); }catch(e){} }
-  function reglaParaRuta(ruta){
-    const reglas = leerReglas();
-    const rutas = Object.keys(reglas).sort((a,b)=> b.length - a.length); // la más específica primero
-    for(const r of rutas){
-      if(ruta === r || ruta.startsWith(r + ' / ')) return reglas[r];
-    }
-    return null;
-  }
   function estadoEfectivo(r){
-    if(r.esCarpeta) return r.Estado;
-    const regla = reglaParaRuta(r.Ruta);
-    if(!regla || !r.FechaActualizacion) return r.Estado;
-    const fecha = new Date(r.FechaActualizacion);
-    const hoy = new Date();
-    const diasDesde = (hoy - fecha) / 86400000;
-    if(diasDesde <= regla.diasActualizado) return 'ACTUALIZADO';
-    if(diasDesde <= regla.diasAntiguo) return 'DESACTUALIZADO';
-    return 'ANTIGUO';
-  }
-  function configurarReglaCarpeta(ruta){
-    const actual = reglaParaRuta(ruta);
-    if(actual){
-      const quitar = confirm(`Esta carpeta ya tiene una regla propia (Actualizado hasta ${actual.diasActualizado} días, Antiguo desde ${actual.diasAntiguo} días).\n\nAceptar = quitar la regla y volver al estándar.\nCancelar = editar los valores.`);
-      if(quitar){ quitarReglaCarpeta(ruta); return; }
-    }
-    const diasAct = prompt(`Carpeta crítica: "${ruta}"\n¿Cada cuántos días debe considerarse ACTUALIZADO? (ej. 7)`, actual ? actual.diasActualizado : 30);
-    if(diasAct === null) return;
-    const diasAnt = prompt(`¿Y cada cuántos días pasa a ANTIGUO?`, actual ? actual.diasAntiguo : 90);
-    if(diasAnt === null) return;
-    const reglas = leerReglas();
-    reglas[ruta] = { diasActualizado: parseInt(diasAct,10) || 30, diasAntiguo: parseInt(diasAnt,10) || 90 };
-    guardarReglas(reglas);
-    render();
-  }
-  function quitarReglaCarpeta(ruta){
-    const reglas = leerReglas();
-    delete reglas[ruta];
-    guardarReglas(reglas);
-    render();
+    return r.Estado;
   }
 
   // ---- Cadena de aprobación por archivo ----
@@ -759,7 +721,7 @@ function initApp(){
               <span><b>Modificado:</b> ${formatoFechaHora(r.FechaActualizacion)}</span>
               ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
             </div>
-            ${nota ? `<p class="nota-linea">💬 ${escapeHtml(nota)}</p>` : ''}
+            ${nota ? `<p class="nota-linea"><span class="nota-icono">💬</span>${escapeHtml(nota)}</p>` : ''}
           </div>
           <span class="open-tag ${apertura.clase}">${apertura.texto}</span>
           <span class="badge ${badgeClass(estadoMostrar)}">${escapeHtml(estadoMostrar)}</span>
@@ -792,16 +754,11 @@ function initApp(){
       if(r.esCarpeta){
         const n = contarDescendientes(list, i);
         const nivel = Math.min(depth, 4);
-        const tieneRegla = !!reglaParaRuta(r.Ruta);
         const details = document.createElement('details');
         details.className = 'folder folder-lvl-' + nivel;
         details.dataset.ruta = r.Ruta;
         details.open = depth === 1;
-        details.innerHTML = `<summary><span class="fname">${r.icono} ${resaltar(r.Nombre, q)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><button type="button" class="regla-btn ${tieneRegla?'regla-activa':''}" title="${tieneRegla?'Editar regla de vigencia de esta carpeta':'Definir regla de vigencia propia para esta carpeta'}">⚙️</button><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
-        details.querySelector('.regla-btn').addEventListener('click', (e)=>{
-          e.preventDefault(); e.stopPropagation();
-          configurarReglaCarpeta(r.Ruta);
-        });
+        details.innerHTML = `<summary><span class="fname">${r.icono} ${resaltar(r.Nombre, q)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
         parentEl.appendChild(details);
         stack.push({ depth, el: details.querySelector('.folder-children') });
       } else {
