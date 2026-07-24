@@ -48,7 +48,7 @@
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
 
   /* BARRA HORIZONTAL DE ESTADISTICAS (KPIs) */
-  .stats-bar{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; align-items:stretch; }
+  .stats-bar{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; align-items:stretch; position:sticky; z-index:15; background:var(--bg); padding-top:14px; padding-bottom:4px; }
   .stat-pill{
     flex:1 1 150px; background:var(--surface); border:1px solid var(--line); border-radius:12px;
     padding:14px 16px; display:flex; flex-direction:column; gap:5px; min-width:130px;
@@ -102,64 +102,82 @@
   .count-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
   .count-pill{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); }
 
-  .tree, .flat{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:4px; }
+  .tree, .flat{ background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:2px; }
 
-  details.folder{ border:1.5px solid var(--line); border-left:4px solid var(--steel); background:var(--surface); border-radius:8px; margin:6px; }
+  details.folder{ border:1px solid var(--line); border-left:2px solid var(--steel); background:var(--surface); border-radius:5px; margin:2px; }
   details.folder.folder-lvl-1{
-    border:2px solid var(--header-blue); border-left:6px solid var(--header-blue);
-    background:linear-gradient(180deg, #EEF3FE 0%, var(--surface) 60px);
-    border-radius:10px; box-shadow:0 2px 8px rgba(20,80,214,0.08);
+    border:1px solid #D6E0F5; border-left:3px solid var(--header-blue);
+    background:var(--surface); border-radius:5px;
   }
-  details.folder.folder-lvl-1 > summary{ font-size:15.5px; font-weight:700; padding:16px 18px; }
-  details.folder.folder-lvl-1 > summary .fname::before{ content:"📌 "; }
-  details.folder.folder-lvl-2{ border-color:#C7D3EE; border-left-color:var(--steel-light); background:var(--surface-alt); }
-  details.folder.folder-lvl-3{ border-color:#D6DCEA; border-left-color:#6B7CA8; background:#F1F3F8; border-style:dashed; }
-  details.folder.folder-lvl-4{ border-color:#DDE1EC; border-left-color:#8891A8; background:#ECEFF5; border-style:dotted; }
+  details.folder.folder-lvl-1 > summary{ font-size:11.5px; font-weight:700; }
+  details.folder.folder-lvl-2{ border-color:var(--line); border-left-color:var(--steel-light); background:var(--surface-alt); }
+  details.folder.folder-lvl-3{ border-color:var(--line); border-left-color:#6B7CA8; background:#F5F6F9; }
+  details.folder.folder-lvl-4{ border-color:var(--line); border-left-color:#8891A8; background:#F0F1F5; }
   details.folder > summary{
-    list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 16px;
-    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px; color:var(--ink);
-    border-radius:6px; transition:background .12s ease;
+    list-style:none; cursor:pointer; display:flex; align-items:center; gap:7px; padding:5px 10px;
+    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:11px; color:var(--ink);
+    border-radius:4px; transition:background .12s ease; min-height:26px;
   }
   details.folder > summary:hover{ background:rgba(20,80,214,0.05); }
   details.folder > summary::-webkit-details-marker{ display:none; }
-  details.folder > summary::before{ content:"▸"; color:var(--ink-soft); font-size:11px; transition:transform .15s ease; flex:none; width:10px; }
+  details.folder > summary::before{ content:"▸"; color:var(--ink-soft); font-size:8.5px; transition:transform .15s ease; flex:none; width:8px; }
   details.folder[open] > summary::before{ transform:rotate(90deg); }
-  details.folder > summary .fname{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; }
-  details.folder > summary .fcount{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); font-weight:400; }
-  .folder-children{ padding-left:12px; margin-left:16px; }
+  details.folder > summary .fname{ flex:1; min-width:0; display:flex; align-items:center; gap:6px; }
+  details.folder > summary .fcount{ font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--ink-soft); font-weight:400; }
+  .folder-children{ padding-left:7px; margin-left:9px; }
 
   .item{
-    display:flex; gap:16px; align-items:flex-start; padding:14px 16px; border-radius:6px;
+    display:flex; gap:9px; align-items:center; padding:5px 10px; border-radius:4px; min-height:30px;
     border-bottom:1px solid var(--line); text-decoration:none; color:inherit; transition:background .12s ease;
   }
   .item:last-child{ border-bottom:none; }
   .item:hover{ background:var(--surface-alt); }
   .thumb-wrap{
-    width:56px; height:56px; border-radius:6px; background:var(--surface-alt); border:1px solid var(--line);
+    width:26px; height:26px; border-radius:4px; background:var(--surface-alt); border:1px solid var(--line);
     flex:none; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;
     transition:transform .18s ease, box-shadow .18s ease; z-index:1;
   }
-  .thumb-wrap:hover{ transform:scale(2.6); z-index:30; box-shadow:0 10px 30px rgba(15,20,32,0.28); border-color:var(--header-blue); }
-  .thumb-icon{ font-size:21px; line-height:1; }
-  .thumb-label{ font-family:'IBM Plex Mono', monospace; font-size:7px; color:var(--ink-soft); margin-top:2px; text-align:center; line-height:1.1; }
+  .thumb-wrap:hover{ transform:scale(3.6); z-index:30; box-shadow:0 10px 30px rgba(15,20,32,0.28); border-color:var(--header-blue); }
+  .thumb-icon{ font-size:11px; line-height:1; }
+  .thumb-label{ display:none; }
+  .thumb-wrap:hover .thumb-label{ display:block; font-family:'IBM Plex Mono', monospace; font-size:7px; color:var(--ink-soft); margin-top:2px; text-align:center; line-height:1.1; }
   .thumb-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .2s ease; }
   .thumb-img.loaded{ opacity:1; }
-  .cell-name{ flex:1; min-width:0; }
-  .top-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
-  .name-line{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .cell-name h4{ font-family:'Space Grotesk', sans-serif; font-size:14px; font-weight:600; margin:0; color:var(--ink); line-height:1.35; }
-  .breadcrumb{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--steel-light); margin:4px 0 0; word-break:break-word; }
-  .meta-cols{ display:flex; gap:24px; margin-top:9px; flex-wrap:wrap; }
-  .meta-cols .col{ display:flex; flex-direction:column; gap:3px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); }
+  .cell-name{ flex:1; min-width:0; display:flex; align-items:center; gap:14px; }
+  .name-block{ flex:0 0 210px; min-width:0; }
+  .name-line{ display:flex; align-items:center; gap:5px; flex-wrap:wrap; min-width:0; }
+  .cell-name h4{ font-family:'IBM Plex Sans', sans-serif; font-size:11.5px; font-weight:600; margin:0; color:var(--ink); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .breadcrumb{ font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--steel-light); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hl{ background:#FFE58A; border-radius:2px; padding:0 1px; }
+  .meta-cols{ display:flex; gap:14px; flex-wrap:wrap; font-size:9.5px; }
+  .meta-cols .col{ display:flex; flex-direction:row; gap:9px; font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--ink-soft); }
   .meta-cols b{ color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-weight:600; }
-  .badge{ font-family:'IBM Plex Sans', sans-serif; font-size:10.5px; font-weight:600; padding:4px 11px; border-radius:20px; color:#fff; white-space:nowrap; flex:none; }
+  .badge{ font-family:'IBM Plex Sans', sans-serif; font-size:8.5px; font-weight:600; padding:2.5px 8px; border-radius:20px; color:#fff; white-space:nowrap; flex:none; }
   .badge.ACTUALIZADO{ background:var(--good); }
   .badge.DESACTUALIZADO{ background:var(--warn); }
   .badge.ANTIGUO{ background:var(--old); }
   .badge.other{ background:var(--ink-soft); }
-  .open-tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; font-weight:600; padding:3px 9px; border-radius:20px; border:1px dashed var(--line); color:var(--ink-soft); background:var(--surface-alt); white-space:nowrap; }
+  .open-tag{ font-family:'IBM Plex Mono', monospace; font-size:8.5px; font-weight:600; padding:2.5px 8px; border-radius:20px; border:1px dashed var(--line); color:var(--ink-soft); background:var(--surface-alt); white-space:nowrap; }
   .open-tag.recien{ border:1px solid var(--header-blue); color:#fff; background:var(--header-blue); }
   .open-tag.abierto{ border:1px solid var(--good); color:var(--good); background:var(--good-soft); }
+
+  .item-row{ display:flex; align-items:center; gap:5px; border-bottom:1px solid var(--line); }
+  .item-row:last-child{ border-bottom:none; }
+  .item-row .item{ flex:1; min-width:0; border-bottom:none; }
+  .mini-btn{
+    flex:none; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft);
+    font-family:'IBM Plex Sans', sans-serif; font-size:8.5px; font-weight:600; border-radius:20px;
+    padding:2.5px 8px; cursor:pointer; white-space:nowrap; transition:all .12s ease;
+  }
+  .mini-btn:hover{ border-color:var(--steel-light); color:var(--ink); }
+  .aprob-btn.sin_revisar{ color:var(--ink-soft); }
+  .aprob-btn.revision{ border-color:var(--warn); color:var(--warn); background:var(--warn-soft); }
+  .aprob-btn.aprobado{ border-color:var(--good); color:var(--good); background:var(--good-soft); }
+  .nota-btn{ padding:2.5px 7px; }
+  .nota-linea{ font-size:9.5px; color:var(--steel); font-style:italic; margin:2px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .regla-btn{ background:none; border:none; cursor:pointer; font-size:10px; padding:0 2px; flex:none; opacity:.55; }
+  .regla-btn:hover{ opacity:1; }
+  .regla-activa{ color:var(--header-blue); opacity:1; }
 
   .empty{ text-align:center; padding:56px 20px; color:var(--ink-soft); }
   .empty h3{ font-family:'Space Grotesk',sans-serif; color:var(--ink); margin:0 0 6px; font-size:16px;}
@@ -234,7 +252,6 @@
     </div>
     <div class="title-block">
       <h1>Índice Gestión Documentario I+D</h1>
-      <p>Laboratorio de Aplicaciones I&amp;D</p>
     </div>
     <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Cargando…</span></div>
   </header>
@@ -268,7 +285,7 @@
   <div class="toolbar">
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="searchInput" type="text" placeholder="Buscar por nombre o ruta…" autocomplete="off">
+      <input id="searchInput" type="text" placeholder="Buscar por nombre o ruta… (atajo: #)" autocomplete="off">
     </div>
     <div class="chip-group" id="chipGroup">
       <button class="chip active" data-v="todos">Todos</button>
@@ -276,7 +293,10 @@
       <button class="chip" data-v="DESACTUALIZADO">Desactualizado</button>
       <button class="chip" data-v="ANTIGUO">Antiguo</button>
     </div>
-    <button class="btn btn-ghost" id="exportCsvBtn" title="Descargar como Excel (CSV)">⬇️ Excel</button>
+    <div class="chip-group" id="ordenGroup">
+      <button class="chip active" data-orden="nombre">🔤 Alfabético</button>
+      <button class="chip" data-orden="fecha">🕓 Reciente primero</button>
+    </div>
     <button class="btn btn-ghost" id="exportPdfBtn" title="Descargar como PDF">⬇️ PDF</button>
     <button class="btn btn-ghost" id="refreshBtn">
       <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -329,6 +349,14 @@ if(!isConfigured){
 }
 
 function initApp(){
+  const headerEl = document.querySelector('header');
+  const statsBarEl = document.querySelector('.stats-bar');
+  function ajustarStickyStats(){
+    if(headerEl && statsBarEl) statsBarEl.style.top = headerEl.offsetHeight + 'px';
+  }
+  ajustarStickyStats();
+  window.addEventListener('resize', ajustarStickyStats);
+
   const container = document.getElementById('container');
   const searchInput = document.getElementById('searchInput');
   const chipGroup = document.getElementById('chipGroup');
@@ -338,13 +366,14 @@ function initApp(){
   const lastUpdate = document.getElementById('lastUpdate');
   const footNote = document.getElementById('footNote');
   const refreshBtn = document.getElementById('refreshBtn');
-  const exportCsvBtn = document.getElementById('exportCsvBtn');
   const exportPdfBtn = document.getElementById('exportPdfBtn');
   const historyBar = document.getElementById('historyBar');
   const offlineBanner = document.getElementById('offlineBanner');
 
   let rows = [];
   let estadoFiltro = 'todos';
+  let ordenActual = 'nombre'; // 'nombre' (alfabético) o 'fecha' (más reciente primero)
+  let ultimosBloques = null;
   let cargando = false;
   let ultimaCarga = null;
 
@@ -407,6 +436,14 @@ function initApp(){
 
   function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
 
+  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function resaltar(texto, q){
+    const seguro = escapeHtml(texto);
+    if(!q) return seguro;
+    const re = new RegExp(escapeRegExp(escapeHtml(q)), 'gi');
+    return seguro.replace(re, m => `<mark class="hl">${m}</mark>`);
+  }
+
 
   function estadoDeFecha(fechaTexto){
     if(!fechaTexto) return '—';
@@ -417,6 +454,81 @@ function initApp(){
     if(fecha >= unMesAtras) return 'ACTUALIZADO';
     if(fecha >= unAnioAtras) return 'DESACTUALIZADO';
     return 'ANTIGUO';
+  }
+
+  // ---- Reglas de vigencia personalizadas por carpeta ----
+  const REGLAS_KEY = 'idx_reglas_vigencia_v1';
+  function leerReglas(){ try{ return JSON.parse(localStorage.getItem(REGLAS_KEY) || '{}'); }catch(e){ return {}; } }
+  function guardarReglas(mapa){ try{ localStorage.setItem(REGLAS_KEY, JSON.stringify(mapa)); }catch(e){} }
+  function reglaParaRuta(ruta){
+    const reglas = leerReglas();
+    const rutas = Object.keys(reglas).sort((a,b)=> b.length - a.length); // la más específica primero
+    for(const r of rutas){
+      if(ruta === r || ruta.startsWith(r + ' / ')) return reglas[r];
+    }
+    return null;
+  }
+  function estadoEfectivo(r){
+    if(r.esCarpeta) return r.Estado;
+    const regla = reglaParaRuta(r.Ruta);
+    if(!regla || !r.FechaActualizacion) return r.Estado;
+    const fecha = new Date(r.FechaActualizacion);
+    const hoy = new Date();
+    const diasDesde = (hoy - fecha) / 86400000;
+    if(diasDesde <= regla.diasActualizado) return 'ACTUALIZADO';
+    if(diasDesde <= regla.diasAntiguo) return 'DESACTUALIZADO';
+    return 'ANTIGUO';
+  }
+  function configurarReglaCarpeta(ruta){
+    const actual = reglaParaRuta(ruta);
+    if(actual){
+      const quitar = confirm(`Esta carpeta ya tiene una regla propia (Actualizado hasta ${actual.diasActualizado} días, Antiguo desde ${actual.diasAntiguo} días).\n\nAceptar = quitar la regla y volver al estándar.\nCancelar = editar los valores.`);
+      if(quitar){ quitarReglaCarpeta(ruta); return; }
+    }
+    const diasAct = prompt(`Carpeta crítica: "${ruta}"\n¿Cada cuántos días debe considerarse ACTUALIZADO? (ej. 7)`, actual ? actual.diasActualizado : 30);
+    if(diasAct === null) return;
+    const diasAnt = prompt(`¿Y cada cuántos días pasa a ANTIGUO?`, actual ? actual.diasAntiguo : 90);
+    if(diasAnt === null) return;
+    const reglas = leerReglas();
+    reglas[ruta] = { diasActualizado: parseInt(diasAct,10) || 30, diasAntiguo: parseInt(diasAnt,10) || 90 };
+    guardarReglas(reglas);
+    render();
+  }
+  function quitarReglaCarpeta(ruta){
+    const reglas = leerReglas();
+    delete reglas[ruta];
+    guardarReglas(reglas);
+    render();
+  }
+
+  // ---- Cadena de aprobación por archivo ----
+  const APROB_KEY = 'idx_aprobacion_v1';
+  const APROB_ORDEN = ['sin_revisar','revision','aprobado'];
+  const APROB_TEXTO = { sin_revisar:'Sin revisar', revision:'En revisión', aprobado:'Aprobado' };
+  function leerAprobaciones(){ try{ return JSON.parse(localStorage.getItem(APROB_KEY) || '{}'); }catch(e){ return {}; } }
+  function estadoAprobacion(clave){
+    const datos = leerAprobaciones();
+    return datos[clave] || 'sin_revisar';
+  }
+  function avanzarAprobacion(clave){
+    const datos = leerAprobaciones();
+    const actual = datos[clave] || 'sin_revisar';
+    const siguiente = APROB_ORDEN[(APROB_ORDEN.indexOf(actual) + 1) % APROB_ORDEN.length];
+    datos[clave] = siguiente;
+    try{ localStorage.setItem(APROB_KEY, JSON.stringify(datos)); }catch(e){}
+  }
+
+  // ---- Comentarios/notas internas por archivo ----
+  const NOTAS_KEY = 'idx_notas_v1';
+  function leerNotas(){ try{ return JSON.parse(localStorage.getItem(NOTAS_KEY) || '{}'); }catch(e){ return {}; } }
+  function notaDe(clave){ return leerNotas()[clave] || ''; }
+  function editarNota(clave, nombre){
+    const notas = leerNotas();
+    const nueva = prompt(`Nota interna para "${nombre}" (solo la ves tú, en este navegador):`, notas[clave] || '');
+    if(nueva === null) return;
+    if(nueva.trim() === ''){ delete notas[clave]; } else { notas[clave] = nueva.trim(); }
+    try{ localStorage.setItem(NOTAS_KEY, JSON.stringify(notas)); }catch(e){}
+    render();
   }
 
   function formatoPeso(bytesTexto){
@@ -497,7 +609,6 @@ function initApp(){
         archivos.push(construirItem(f, ruta + ' / ' + f.name, profundidad + 1, false));
       }
     });
-    archivos.sort((a,b) => a.Nombre.localeCompare(b.Nombre, 'es', {sensitivity:'base'}));
     const propios = [carpetaPropia, ...archivos];
 
     itemsPorCarpeta.push(propios);
@@ -518,7 +629,8 @@ function initApp(){
       const rootFolderId = await obtenerRootFolderId();
       const bloques = [];
       await recorrerCarpeta(rootFolderId, '', 0, bloques);
-      rows = ordenarComoArbol(bloques);
+      ultimosBloques = bloques;
+      rows = ordenarComoArbol(bloques, ordenActual);
       ultimaCarga = Date.now();
       statusDot.className = 'dot on';
       statusText.textContent = 'Conectado';
@@ -549,18 +661,33 @@ function initApp(){
     }
   }
 
+  function aplicarOrden(nuevoOrden){
+    ordenActual = nuevoOrden;
+    if(ultimosBloques){
+      rows = ordenarComoArbol(ultimosBloques, ordenActual);
+      render();
+    }
+  }
+
   // Arma el orden jerárquico correcto (carpeta, sus archivos, sus subcarpetas...) a partir
   // de los bloques recolectados en paralelo, usando Ruta para saber quién es hijo de quién.
-  function ordenarComoArbol(bloques){
+  // orden: 'nombre' (alfabético) o 'fecha' (más reciente modificado primero)
+  function ordenarComoArbol(bloques, orden){
+    function comparar(a, b){
+      if(orden === 'fecha'){
+        return new Date(b.FechaActualizacion || 0) - new Date(a.FechaActualizacion || 0);
+      }
+      return a.Nombre.localeCompare(b.Nombre, 'es', {sensitivity:'base'});
+    }
     const raiz = bloques.find(b => b[0].Profundidad === 0);
     const resultado = [];
     function visitar(bloque, esRaiz){
       const [carpeta, ...archivos] = bloque;
       if(!esRaiz) resultado.push(carpeta); // la carpeta general no se muestra, solo su contenido
-      archivos.forEach(a => resultado.push(a));
+      archivos.sort(comparar).forEach(a => resultado.push(a));
       const hijos = bloques
         .filter(b => b[0].Profundidad === carpeta.Profundidad + 1 && b[0].Ruta.startsWith(carpeta.Ruta + ' / ') && !b[0].Ruta.slice(carpeta.Ruta.length + 3).includes(' / '))
-        .sort((a,b)=> a[0].Nombre.localeCompare(b[0].Nombre));
+        .sort((a,b)=> comparar(a[0], b[0]));
       hijos.forEach(h => visitar(h, false));
     }
     if(raiz) visitar(raiz, true);
@@ -613,7 +740,7 @@ function initApp(){
     irACarpeta(link.dataset.irA);
   });
 
-  function renderItem(r){
+  function renderItem(r, q){
     const thumb = `
       <div class="thumb-wrap">
         <span class="thumb-icon">${r.icono}</span>
@@ -622,31 +749,39 @@ function initApp(){
       </div>`;
     const claveApertura = r.Link || r.Ruta;
     const apertura = estadoAperturaArchivo(claveApertura);
+    const estadoMostrar = estadoEfectivo(r);
+    const aprobacion = estadoAprobacion(claveApertura);
+    const nota = notaDe(claveApertura);
     return `
-      <a class="item" href="${escapeHtml(r.Link || '#')}" target="_blank" rel="noopener noreferrer" data-apertura-clave="${escapeHtml(claveApertura)}">
-        ${thumb}
-        <div class="cell-name">
-          <div class="top-row">
-            <div class="name-line">
-              <h4>${escapeHtml(r.Nombre)}</h4>
-              <span class="open-tag ${apertura.clase}">${apertura.texto}</span>
+      <div class="item-row" data-clave="${escapeHtml(claveApertura)}" data-nombre="${escapeHtml(r.Nombre)}">
+        <a class="item" href="${escapeHtml(r.Link || '#')}" target="_blank" rel="noopener noreferrer" data-apertura-clave="${escapeHtml(claveApertura)}">
+          ${thumb}
+          <div class="cell-name">
+            <div class="name-block">
+              <div class="name-line">
+                <h4>${resaltar(r.Nombre, q)}</h4>
+              </div>
+              <p class="breadcrumb">${renderBreadcrumb(r.Ruta)}</p>
+              ${nota ? `<p class="nota-linea">💬 ${escapeHtml(nota)}</p>` : ''}
             </div>
-            <span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span>
+            <div class="meta-cols">
+              <div class="col">
+                ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
+                ${r.UltimaPersona ? `<span><b>Editó:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
+                ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
+              </div>
+              <div class="col">
+                <span><b>Creado:</b> ${formatoFechaHora(r.FechaRegistro)}</span>
+                <span><b>Modificado:</b> ${formatoFechaHora(r.FechaActualizacion)}</span>
+              </div>
+            </div>
           </div>
-          <p class="breadcrumb">${renderBreadcrumb(r.Ruta)}</p>
-          <div class="meta-cols">
-            <div class="col">
-              ${r.Creador ? `<span><b>Creador:</b> ${escapeHtml(r.Creador)}</span>` : ''}
-              ${r.UltimaPersona ? `<span><b>Última edición por:</b> ${escapeHtml(r.UltimaPersona)}</span>` : ''}
-              ${r.Peso ? `<span><b>Peso:</b> ${escapeHtml(r.Peso)}</span>` : ''}
-            </div>
-            <div class="col">
-              <span><b>Creado:</b> ${formatoFechaHora(r.FechaRegistro)}</span>
-              <span><b>Modificado:</b> ${formatoFechaHora(r.FechaActualizacion)}</span>
-            </div>
-          </div>
-        </div>
-      </a>`;
+          <span class="open-tag ${apertura.clase}">${apertura.texto}</span>
+          <span class="badge ${badgeClass(estadoMostrar)}">${escapeHtml(estadoMostrar)}</span>
+        </a>
+        <button class="mini-btn aprob-btn ${aprobacion}" data-clave="${escapeHtml(claveApertura)}" title="Clic para cambiar el estado de revisión">${APROB_TEXTO[aprobacion]}</button>
+        <button class="mini-btn nota-btn" data-clave="${escapeHtml(claveApertura)}" title="Agregar/editar nota">💬</button>
+      </div>`;
   }
 
   function contarDescendientes(list, index){
@@ -659,7 +794,7 @@ function initApp(){
     return count;
   }
 
-  function renderTree(list){
+  function renderTree(list, q){
     const root = document.createElement('div');
     root.className = 'tree';
     const stack = [{ depth:-1, el: root }];
@@ -672,33 +807,54 @@ function initApp(){
       if(r.esCarpeta){
         const n = contarDescendientes(list, i);
         const nivel = Math.min(depth, 4);
+        const tieneRegla = !!reglaParaRuta(r.Ruta);
         const details = document.createElement('details');
         details.className = 'folder folder-lvl-' + nivel;
         details.dataset.ruta = r.Ruta;
         details.open = depth === 1;
-        details.innerHTML = `<summary><span class="fname">${r.icono} ${escapeHtml(r.Nombre)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
+        details.innerHTML = `<summary><span class="fname">${r.icono} ${resaltar(r.Nombre, q)}</span><span class="fcount">${n} archivo${n===1?'':'s'}</span><button type="button" class="regla-btn ${tieneRegla?'regla-activa':''}" title="${tieneRegla?'Editar regla de vigencia de esta carpeta':'Definir regla de vigencia propia para esta carpeta'}">⚙️</button><span class="badge ${badgeClass(r.Estado)}">${escapeHtml(r.Estado)}</span></summary><div class="folder-children"></div>`;
+        details.querySelector('.regla-btn').addEventListener('click', (e)=>{
+          e.preventDefault(); e.stopPropagation();
+          configurarReglaCarpeta(r.Ruta);
+        });
         parentEl.appendChild(details);
         stack.push({ depth, el: details.querySelector('.folder-children') });
       } else {
         const div = document.createElement('div');
-        div.innerHTML = renderItem(r);
-        const enlace = div.firstElementChild;
-        enlace.addEventListener('click', () => guardarApertura(enlace.dataset.aperturaClave));
-        parentEl.appendChild(enlace);
+        div.innerHTML = renderItem(r, q);
+        const fila = div.firstElementChild;
+        conectarFila(fila);
+        parentEl.appendChild(fila);
       }
     });
     return root;
   }
 
-  function renderFlat(list){
+  function conectarFila(fila){
+    const enlace = fila.querySelector('.item');
+    enlace.addEventListener('click', () => guardarApertura(enlace.dataset.aperturaClave));
+    const aprobBtn = fila.querySelector('.aprob-btn');
+    aprobBtn.addEventListener('click', (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      avanzarAprobacion(aprobBtn.dataset.clave);
+      render();
+    });
+    const notaBtn = fila.querySelector('.nota-btn');
+    notaBtn.addEventListener('click', (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      editarNota(notaBtn.dataset.clave, fila.dataset.nombre);
+    });
+  }
+
+  function renderFlat(list, q){
     const root = document.createElement('div');
     root.className = 'flat';
     list.forEach(r=>{
       const div = document.createElement('div');
-      div.innerHTML = renderItem(r);
-      const enlace = div.firstElementChild;
-      enlace.addEventListener('click', () => guardarApertura(enlace.dataset.aperturaClave));
-      root.appendChild(enlace);
+      div.innerHTML = renderItem(r, q);
+      const fila = div.firstElementChild;
+      conectarFila(fila);
+      root.appendChild(fila);
     });
     return root;
   }
@@ -709,14 +865,14 @@ function initApp(){
     const total = archivos.length || 1;
 
     ['ACTUALIZADO','DESACTUALIZADO','ANTIGUO'].forEach(estado=>{
-      const n = archivos.filter(r => r.Estado === estado).length;
+      const n = archivos.filter(r => estadoEfectivo(r) === estado).length;
       const cntEl = document.getElementById('cnt' + estado);
       const barEl = document.getElementById('bar' + estado);
       if(cntEl) cntEl.textContent = n;
       if(barEl) barEl.style.width = Math.round((n / total) * 100) + '%';
     });
 
-    const nAntiguo = archivos.filter(r => r.Estado === 'ANTIGUO').length;
+    const nAntiguo = archivos.filter(r => estadoEfectivo(r) === 'ANTIGUO').length;
     const pillAntiguo = document.querySelector('.stat-pill.ANTIGUO');
     if(pillAntiguo){
       const alerta = nAntiguo >= 5 || (nAntiguo / total) > 0.25;
@@ -747,8 +903,12 @@ function initApp(){
     const hayFiltro = q.length > 0 || estadoFiltro !== 'todos';
 
     const coincide = (r) => {
-      const okEstado = estadoFiltro === 'todos' || r.Estado === estadoFiltro;
-      const okTexto = !q || (r.Nombre||'').toLowerCase().includes(q) || (r.Ruta||'').toLowerCase().includes(q);
+      const okEstado = estadoFiltro === 'todos' || estadoEfectivo(r) === estadoFiltro;
+      const okTexto = !q ||
+        (r.Nombre||'').toLowerCase().includes(q) ||
+        (r.Ruta||'').toLowerCase().includes(q) ||
+        (r.Creador||'').toLowerCase().includes(q) ||
+        (r.UltimaPersona||'').toLowerCase().includes(q);
       return okEstado && okTexto;
     };
 
@@ -771,9 +931,9 @@ function initApp(){
         actualizarStats();
         return;
       }
-      container.appendChild(renderFlat(filtrados));
+      container.appendChild(renderFlat(filtrados, q));
     } else {
-      container.appendChild(renderTree(rows));
+      container.appendChild(renderTree(rows, q));
     }
 
     actualizarStats();
@@ -788,7 +948,23 @@ function initApp(){
     });
   });
 
+  const ordenGroup = document.getElementById('ordenGroup');
+  ordenGroup.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      ordenGroup.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      aplicarOrden(chip.dataset.orden);
+    });
+  });
+
   searchInput.addEventListener('input', render);
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === '#' && document.activeElement !== searchInput){
+      e.preventDefault();
+      searchInput.focus();
+    }
+  });
   function descargarBlob(blob, nombreArchivo){
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -803,23 +979,13 @@ function initApp(){
     return rows.filter(r=>{
       if(r.esCarpeta) return false;
       const okEstado = estadoFiltro === 'todos' || r.Estado === estadoFiltro;
-      const okTexto = !q || (r.Nombre||'').toLowerCase().includes(q) || (r.Ruta||'').toLowerCase().includes(q);
+      const okTexto = !q ||
+        (r.Nombre||'').toLowerCase().includes(q) ||
+        (r.Ruta||'').toLowerCase().includes(q) ||
+        (r.Creador||'').toLowerCase().includes(q) ||
+        (r.UltimaPersona||'').toLowerCase().includes(q);
       return okEstado && okTexto;
     });
-  }
-
-  function exportarCSV(){
-    const datos = archivosParaExportar();
-    const encabezados = ['Nombre','Ruta','Creador','Última edición por','Creado','Modificado','Peso','Estado','Link'];
-    const filas = datos.map(r => [
-      r.Nombre, r.Ruta, r.Creador, r.UltimaPersona,
-      formatoFechaHora(r.FechaRegistro), formatoFechaHora(r.FechaActualizacion),
-      r.Peso, r.Estado, r.Link
-    ]);
-    const csv = [encabezados, ...filas]
-      .map(fila => fila.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(','))
-      .join('\r\n');
-    descargarBlob(new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'}), 'indice-drive.csv');
   }
 
   function exportarPDF(){
@@ -841,7 +1007,6 @@ function initApp(){
     doc.save('indice-drive.pdf');
   }
 
-  exportCsvBtn.addEventListener('click', exportarCSV);
   exportPdfBtn.addEventListener('click', exportarPDF);
   refreshBtn.addEventListener('click', () => cargarDatos(true));
 
