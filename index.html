@@ -48,7 +48,7 @@
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
 
   /* BARRA HORIZONTAL DE ESTADISTICAS (KPIs) */
-  .stats-bar{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; align-items:stretch; position:sticky; z-index:15; background:var(--bg); padding-top:14px; padding-bottom:4px; }
+  .stats-bar{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; align-items:stretch; padding-top:14px; padding-bottom:4px; }
   .stat-pill{
     flex:1 1 150px; background:var(--surface); border:1px solid var(--line); border-radius:12px;
     padding:14px 16px; display:flex; flex-direction:column; gap:5px; min-width:130px;
@@ -196,12 +196,12 @@
   @media (max-width:640px){
     header{ grid-template-columns:auto 1fr; }
     .status{ grid-column:1 / -1; justify-self:start; }
-    .item{ padding:12px; gap:12px; }
-    .thumb-wrap{ width:44px; height:44px; }
-    .thumb-wrap:hover{ transform:scale(2.2); }
-    .thumb-icon{ font-size:17px; }
-    .top-row{ flex-direction:column; gap:6px; }
-    .meta-cols{ gap:14px; }
+    .item{ padding:6px 8px; gap:8px; }
+    .thumb-wrap{ width:22px; height:22px; }
+    .thumb-wrap:hover{ transform:scale(2.6); }
+    .thumb-icon{ font-size:10px; }
+    .top-line{ flex-direction:column; align-items:flex-start; gap:2px; }
+    .meta-full{ gap:3px 10px; }
   }
   .stat-pill.ANTIGUO.alerta{ animation:alertaPulse 1.6s infinite; box-shadow:0 0 0 0 rgba(163,32,32,0.5); }
   @keyframes alertaPulse{
@@ -348,14 +348,6 @@ if(!isConfigured){
 }
 
 function initApp(){
-  const headerEl = document.querySelector('header');
-  const statsBarEl = document.querySelector('.stats-bar');
-  function ajustarStickyStats(){
-    if(headerEl && statsBarEl) statsBarEl.style.top = headerEl.offsetHeight + 'px';
-  }
-  ajustarStickyStats();
-  window.addEventListener('resize', ajustarStickyStats);
-
   const container = document.getElementById('container');
   const searchInput = document.getElementById('searchInput');
   const chipGroup = document.getElementById('chipGroup');
@@ -918,7 +910,7 @@ function initApp(){
     }
 
     if(hayFiltro){
-      const filtrados = rows.filter(r => !r.esCarpeta).filter(coincide);
+      const filtrados = rows.filter(r => (q ? true : !r.esCarpeta)).filter(coincide);
       if(filtrados.length === 0){
         container.innerHTML = `<div class="empty"><h3>Sin resultados</h3><p>Prueba con otro término o quita el filtro de estado.</p></div>`;
         actualizarStats();
